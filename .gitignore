@@ -25,6 +25,51 @@ wheels/
 .installed.cfg
 *.egg
 config.py
+### VirtualEnv ###
+
+# Virtualenv
+
+# http://iamzed.com/2009/05/07/a-primer-on-virtualenv/
+
+.Python
+
+[Bb]in
+
+[Ii]nclude
+
+[Ll]ib
+
+[Ll]ib64
+
+[Ll]ocal
+
+[Ss]cripts
+
+pyvenv.cfg
+
+.venv
+
+.venv/*
+
+venv/
+
+pip-selfcheck.json
+
+# Cache
+
+__pycache__/
+
+### VisualStudioCode ###
+
+.vscode/*
+
+!.vscode/settings.json
+
+!.vscode/tasks.json
+
+!.vscode/launch.json
+
+!.vscode/extensions.json
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
