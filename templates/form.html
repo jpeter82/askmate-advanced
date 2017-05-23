@@ -1,0 +1,42 @@
+{% extends "base.html" %} {% block title %} - {% if question %} Edit {% else -%} Add new {% endif %} {% if theme == "new-answer"
+or theme == "answer" %} Answer {% else -%} Question {% endif %} {% endblock %} {% block content %}
+<div id="body-form" class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h1 class="title-text-question">{% if theme == "new-answer" %} Create an answer {% elif theme == "new-question" %} Create a question {% elif
+                theme == "answer" %} Edit an answer {% elif theme == "question" %} Edit a question {% endif %}
+            </h1>
+            <form action="/" method="POST" enctype='multipart/form-data'>
+                <div>
+                    <input type="hidden" id="modID" name="modID" value="{% if theme == 'question' %}{{ question['question'][0] }}{% elif theme == 'answer' %}{{ question['answers'][0][0] }}{% else %}-1{% endif %}"
+                    />
+                </div>
+                <div>
+                    <input type="hidden" id="typeID" name="typeID" value="{% if theme == 'new-question' or theme == 'question' %}0{% else %}1{% endif %}"
+                    />
+                </div>
+                {% if question_id %}
+                <div>
+                    <input type="hidden" id="questionID" name="questionID" value="{{ question_id }}" />
+                </div>
+                {% endif %} {% if theme == "question" or theme == "new-question" %}
+                <div class="md-form">
+                    <label for="question-title">Title:</label></br>
+                    <input type="text" id="question-title" class="form-control" name="title" value="{% if theme == 'question' %}{{ question['question'][4] }}{% endif %}">
+                </div>
+                {% endif %}
+                <div>
+                    <label for="question-message">Description:</label></br>
+                    <textarea type="text" id="textarea" class="form-control" name="description">{% if theme == "question" %}{{ question['question'][5] }}{% elif theme == "answer" %}{{ question['answers'][0][3] }}{% endif %}</textarea>
+                </div>
+                <div>
+                    <label for="file-upload">Upload Image - Allowed formats: jpg, jpeg, png, gif, svg</label>
+                    <input name="file-upload" multiple type="file" class="file file-loading form-control" data-allowed-file-extensions='["jpg", "jpeg", "png", "gif", "svg"]'>
+                </div>
+                <br />
+                <button class="btn btn-primary" type="submit">Submit</button>
+            </form>
+        </div>
+    </div>
+</div>
+{%- endblock content %}
