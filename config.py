@@ -1,6 +1,6 @@
 
 
-# DB Connection
+# DB Connection data
 
 HOST = ''
 DB_NAME = ''
