@@ -1,62 +1,65 @@
 {% extends "base.html" %} {% block title %} - {% if question %} Edit {% else -%} Add new {% endif %} Record{% endblock %}
 {% block content %}
 
-<div id="body-question" class="container">
-    <div class="row">
-        <div class="col-md-12">
-            <h1 class="title-text-question">{{ questions["question"][0][4] }}</h1>
-            <table class="table-form">
+<div>
+    <div>
+        <div>
+            <h1>TITLE</h1>
+            <table>
                 <tr>
                     <td>
-                        <span class="vote-num">{{ questions['question'][0][3] }}</span>
+                        <span>  </span>
                     </td>
-                    <td class="arrows">
-                        <a href="/question/{{ questions['question'][0][0] }}/vote-up"><span class="glyphicon glyphicon-chevron-up" aria-hidden="true"></span></a>
-                        <a href="/question/{{ questions['question'][0][0] }}/vote-down"><span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span></a>
-                    </td>
-                    <td>{{ questions["question"][0][5]|safe }}</td>
                     <td>
-                        <a href="/question/{{ questions['question'][0][0] }}/edit"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></a>
-                        <a href="/question/{{ questions['question'][0][0] }}/delete"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></a>
+                        <a href="#">VOTE +</a>
+                        <a href="#">VOTE -</a>
+                    </td>
+                    <td> </td>
+                    <td>
+                        <a href="#">EDIT</span></a>
+                        <a href="#">DELETE</span></a>
                     </td>
                 </tr>
                 <tr>
                     <td>
-                        {% if questions["question"][0][6] %}
-                        <img src='/static/{{ questions["question"][0][6] }}' alt="Uploaded Image"> {% endif %}
+
+                        <img src='#' alt="Uploaded Image">
+
                     </td>
                 </tr>
             </table>
             <br />
-            <a href="/question/{{ questions['question'][0][0] }}/new-answer" id="create-answer-button" class="btn btn-success">Add an answer</a>            {% if questions["answers"] %} {% for item in questions["answers"] %}
-            <h3 class="title-text-question">Answer #{{ loop.index }}</h3>
-            <table class="table-form">
+            <a href="#">Add an answer</a>
+
+            <h3>Answer #?</h3>
+            <table>
                 <tr>
                     <td>
-                        <span class="vote-num">{{ item[2] }}</span>
+                        <span>  </span>
                     </td>
-                    <td class="arrows">
-                        <a href="/answer/{{ item[0] }}/vote-up"><span class="glyphicon glyphicon-chevron-up" aria-hidden="true"></span></a>
-                        <a href="/answer/{{ item[0] }}/vote-down"><span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span></a>
-                    </td>
-                    <td>{{ item[3]|safe }}</td>
                     <td>
-                        <a href="/answer/{{ item[0] }}/edit"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></a>
-                        <a href="/answer/{{ item[0] }}/delete"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></a>
+                        <a href="#">VOTE +</a>
+                        <a href="#">VOTE -</a>
+                    </td>
+                    <td> </td>
+                    <td>
+                        <a href="#">EDIT</a>
+                        <a href="#">DELETE</a>
                     </td>
                 </tr>
                 <tr>
                     <td>
-                        {% if item[4] %}
-                        <img src='/static/{{ item[4] }}' alt="Uploaded Image" style="max-width:100px"> {% endif %}
+
+                        <img src='#' alt="Uploaded Image">
+
                     </td>
                 </tr>
             </table>
-            {% endfor %} {% else %}
+
             <div>
-                <h1 class="title-text-question">No answers for this quesion yet.</h1>
+                <h1>No answers for this quesion yet.</h1>
             </div>
-            {% endif %}
+
         </div>
     </div>
 </div>
