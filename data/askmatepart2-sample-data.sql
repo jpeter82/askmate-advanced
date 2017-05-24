@@ -20,7 +20,7 @@ DROP TABLE IF EXISTS public.question;
 DROP SEQUENCE IF EXISTS public.question_id_seq;
 CREATE TABLE question (
     id serial NOT NULL,
-    submission_time timestamp without time zone,
+    submission_time timestamp without time zone default date_trunc('second', now()),
     view_number integer,
     vote_number integer,
     title text,
@@ -32,7 +32,7 @@ DROP TABLE IF EXISTS public.answer;
 DROP SEQUENCE IF EXISTS public.answer_id_seq;
 CREATE TABLE answer (
     id serial NOT NULL,
-    submission_time timestamp without time zone,
+    submission_time timestamp without time zone default date_trunc('second', now()),
     vote_number integer,
     question_id integer,
     message text,
@@ -46,7 +46,7 @@ CREATE TABLE comment (
     question_id integer,
     answer_id integer,
     message text,
-    submission_time timestamp without time zone,
+    submission_time timestamp without time zone default date_trunc('second', now()),
     edited_count integer
 );
 
@@ -115,6 +115,7 @@ SELECT pg_catalog.setval('answer_id_seq', 2, true);
 
 INSERT INTO comment VALUES (1, 0, NULL, 'Please clarify the question as it is too vague!', '2017-05-01 05:49:00');
 INSERT INTO comment VALUES (2, NULL, 1, 'I think you could use my_list = list() as well.', '2017-05-02 16:55:00');
+SELECT pg_catalog.setval('comment_id_seq', 2, true);
 
 INSERT INTO tag VALUES (1, 'python');
 INSERT INTO tag VALUES (2, 'sql');
