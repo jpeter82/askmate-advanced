@@ -5,16 +5,38 @@ from datetime import datetime
 
 
 def single_question(question_id):
-    """Returns a single question in dict"""
+    """Returns a single question and corresponding anwers with comments in dict"""
     with db.get_cursor() as cursor:
-        try:
-            sql = """SELECT * FROM question WHERE id = %s;"""
-            data = (question_id,)
-            cursor.execute(sql, data)
-            question = cursor.fetchall()
-            return question
-        except:
-            print("Something went wrong.")
+        data = (question_id,)
+
+        sql = """SELECT q.title,
+                        q.message,
+                        q.submission_time,
+                        q.view_number,
+                        q.vote_number,
+                        c.message,
+                        c.submission_time
+                 FROM question q
+                 LEFT OUTER JOIN comment c ON q.id = c.question_id
+                 WHERE q.id = %s
+                 ORDER BY c.submission_time DESC;"""
+        cursor.execute(sql, data)
+        question = cursor.fetchall()
+
+        sql2 = """SELECT a.message,
+                         a.submission_time,
+                         a.vote_number,
+                         c.message,
+                         c.submission_time
+                  FROM answer a
+                  LEFT OUTER JOIN comment c ON a.id = c.answer_id
+                  WHERE a.question_id = %s
+                  ORDER BY a.submission_time DESC, c.submission_time DESC;"""
+        cursor.execute(sql2, data)
+        answer = cursor.fetchall()
+
+        result = {'question': question, 'answer': answer}
+        return result
 
 
 def all_questions():
@@ -97,7 +119,7 @@ def edit_q_or_a(info_dict, mode=None):
             print("Something went wrong")
 
 
-def delete_comment(id_for_delete, mode):
+def delete(id_for_delete, mode):
     """Deletes a comment"""
     with db.get_cursor() as cursor:
         try:
@@ -112,6 +134,6 @@ def delete_comment(id_for_delete, mode):
         except:
             print("Something went wrong")
 
-
 if __name__ == '__main__':
-    return
+    pass
+    print(single_question(1))
