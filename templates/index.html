@@ -11,7 +11,7 @@
             </form>
             <br />
             <h2>Questions</h2>
-
+            {% if display %}
             <div>
                 <table>
                     <thead>
@@ -25,25 +25,23 @@
                         <th>Delete</th>
                     </thead>
                     <tbody>
-
-
+                        {% for question in display %}
                         <tr>
-                            <td>{{ loop.index }}</td>
-                            <td>{{ question[1] }}</td>
-                            <td>{{ question[2] }}</td>
-                            <td>{{ question[3] }}</td>
-                            <td><a href="#">    </a></td>
-                            <td><a href="#">    </a></td>
+                            <td>{{ question['id'] }}</td>
+                            <td>{{ question['submission_time'] }}</td>
+                            <td>{{ question['view_number'] }}</td>
+                            <td>{{ question['vote_number'] }}</td>
+                            <td><a href="#">{{ question['title'] }}</a></td>
+                            <td><a href="#">{{ question['message'] }}</a></td>
                             <td>
                                 <a href="#">EDIT</a>
                             </td>
                             <td>
                                 <a href="#">DELETE</a>
                             </td>
-
+                            {% endfor %}
                         </tr>
-
-
+                        {% else %}
                         <div>
                             <h2>Don't have any question to display.</h2>
                             <h3> Press the 'Ask a new question!' button above to add a question!</h3>
@@ -52,6 +50,7 @@
                 </table>
             </div>
 
+            {% endif %}
         </div>
     </div>
 </div>
