@@ -65,8 +65,9 @@ def delete_answer(answer_id):
 
 @app.route("/question/<int:question_id>/delete")
 def delete_question(question_id):
-    logic.process_delete(question_id, questions=True)
+    logic.delete(question_id, 'question')
     return redirect(url_for('index'))
+
 
 """
 @app.route("/answer/<answer_id>/vote-<direction>")

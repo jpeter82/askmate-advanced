@@ -105,7 +105,7 @@ def edit_comment(info_dict):
             print("Something went wrong")
 
 
-def edit_q_or_a(info_dict, mode=None):
+def edit_q_a(info_dict, mode=None):
     """Updates a question or answer. the mode can be question or answer. Requires a dictionary. keys: message and id"""
     with db.get_cursor() as cursor:
         try:
@@ -133,6 +133,7 @@ def delete(id_for_delete, mode):
             cursor.execute(sql, data)
         except:
             print("Something went wrong")
+
 
 if __name__ == '__main__':
     pass
