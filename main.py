@@ -72,6 +72,13 @@ def delete_question(question_id):
     return redirect(url_for('index'))
 
 
+@app.route("/search", methods=['GET'])
+def search_questions():
+    data = request.args.get('q', None)
+    # TODO_: call search from logic
+    return render_template('search.html', data=data)
+
+
 """
 @app.route("/answer/<answer_id>/vote-<direction>")
 @app.route("/question/<question_id>/vote-<direction>")

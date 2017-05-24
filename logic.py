@@ -1,7 +1,6 @@
 from psycopg2 import connect, extras
 import db
 from datetime import datetime
-# business logic comes here
 
 
 def single_question(question_id, answers=False):
@@ -49,7 +48,7 @@ def all_questions():
                         message,
                         view_number,
                         vote_number,
-                        submission_time
+                        to_char(submission_time, 'YYYY-MM-DD HH24:MI') AS submission_time
                  FROM question
                  ORDER BY submission_time DESC"""
         cursor.execute(sql)

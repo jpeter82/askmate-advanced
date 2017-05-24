@@ -1,6 +1,7 @@
-{% extends "base.html" %} {% block title %} - {% if question %} Edit {% else -%} Add new {% endif %} Record{% endblock %}
-{% block content %}
+{% extends "base.html" %}
+{% block title %} - {% if question %} Edit {% else -%} Add new {% endif %} Record{% endblock %}
 
+{% block content %}
 <div>
     <div>
         <div>
@@ -11,34 +12,42 @@
             <h2>Questions</h2>
             {% if display %}
             <div>
-                <table>
-                    <thead>
-                        <th>Submisson Time</th>
-                        <th>View Number</th>
-                        <th>Vote Number</th>
-                        <th>Title</th>
-                        <th>Message</th>
-                        <th>Edit</th>
-                        <th>Delete</th>
-                    </thead>
-                    <tbody>
-                        {% for question in display %}
-                        <tr>
-                            <td>{{ question['submission_time'] }}</td>
-                            <td>{{ question['view_number'] }}</td>
-                            <td>{{ question['vote_number'] }}</td>
-                            <td><a href="/question/{{ question['id'] }}">{{ question['title'] }}</a></td>
-                            <td><a href="/question/{{ question['id'] }}">{{ question['message'] }}</a></td>
-                            <td>
-                                <a href="/question/{{ question['id'] }}/edit">EDIT</a>
-                            </td>
-                            <td>
-                                <a href="/question/{{ question['id'] }}/delete">DELETE</a>
-                            </td>
+                <div>
+                    <form action="{{ url_for('search_questions') }}">
+                        <input type="text" name="q" autofocus />
+                        <input type="submit" />
+                    </form>
+                </div>
+                <div>
+                    <table>
+                        <thead>
+                            <th>Submisson Time</th>
+                            <th>View Number</th>
+                            <th>Vote Number</th>
+                            <th>Title</th>
+                            <th>Message</th>
+                            <th>Edit</th>
+                            <th>Delete</th>
+                        </thead>
+                        <tbody>
+                            {% for question in display %}
+                            <tr>
+                                <td>{{ question['submission_time'] }}</td>
+                                <td>{{ question['view_number'] }}</td>
+                                <td>{{ question['vote_number'] }}</td>
+                                <td><a href="/question/{{ question['id'] }}">{{ question['title'] }}</a></td>
+                                <td><a href="/question/{{ question['id'] }}">{{ question['message'] }}</a></td>
+                                <td>
+                                    <a href="/question/{{ question['id'] }}/edit">EDIT</a>
+                                </td>
+                                <td>
+                                    <a href="/question/{{ question['id'] }}/delete">DELETE</a>
+                                </td>
+                            </tr>
                             {% endfor %}
-                        </tr>
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
+                </div>
             </div>
             {% else %}
             <div>
