@@ -4,7 +4,8 @@ from datetime import datetime
 # business logic comes here
 
 
-def single_question(question_id, answer=True):
+def single_question(question_id):
+    """Returns a single question in dict"""
     with db.get_cursor() as cursor:
         try:
             sql = """SELECT * FROM question WHERE id = %s;"""
@@ -17,6 +18,7 @@ def single_question(question_id, answer=True):
 
 
 def all_questions():
+    """Returns all the questions list of dicts"""
     with db.get_cursor() as cursor:
         try:
             sql = """SELECT * FROM question"""
@@ -31,65 +33,85 @@ def get_question_by_answer_id(answer_id):
     return
 
 
-def new_comment(info_dict, mode=False):
-    """information, dict or list?
-    mode is false => question comment, if True => answer comment"""
-    #new_id = new_id_generator('comment')
-    dt = datetime.now()
+def new_q_a(info_dict, mode):
+    """Reqs a dict, key is 'message' if mode is answer, else /mode is question/ 'title' and 'message'"""
     with db.get_cursor() as cursor:
         try:
-            if mode is False:
-                sql = """INSERT INTO comment (question_id, message, submission_time)
-                VALUES(%s, %s, %s);"""
-            else:
-                sql = """INSERT INTO comment (answer_id, message, submission_time)
-                VALUES(%s, %s, %s);"""
+            if mode == "answer":
+                sql = """INSERT INTO answer (message) VALUES(%s);"""
+                data = (info_dict['message'],)
+            elif mode == "question":
+                sql = """INSERT INTO question (title, message) VALUES(%s, %s);"""
+                data = (info_dict['title'], info_dict['message'])
+            cursor.execute(sql, data)
+        except:
+            print("Something went wrong")
+
+
+def new_comment(info_dict, mode):
+    """dict keys are id and message, mode answer or question """
+    with db.get_cursor() as cursor:
+        try:
+            if mode == 'question':
+                sql = """INSERT INTO comment (question_id, message)
+                VALUES(%s, %s);"""
+            elif mode == 'answer':
+                sql = """INSERT INTO comment (answer_id, message)
+                VALUES(%s, %s);"""
             data = (
-                info_dict['group_id'],
-                info_dict['message'],
-                dt)
+                info_dict['id'],
+                info_dict['message'])
             cursor.execute(sql, data)
         except:
             print('Something went wrong')
 
 
-#def new_id_generator(where):
-#    with db.get_cursor() as cursor:
-#        try:
-#            cursor.execute("""SELECT id FROM %s ORDER BY id DESC LIMIT 1""" % where)
-#            result = cursor.fetchone()
-#            result = int(result[0])+1
-#            return result
-#        except:
-#            print("Something went wrong")
-
-
 def edit_comment(info_dict):
-    dt = datetime.now()
+    """Reqs a dict, where keys are message and id"""
     with db.get_cursor() as cursor:
         try:
-            cursor.execute("""SELECT edited_count FROM comment WHERE id = %s""" % info_dict['comment_id'])
+            cursor.execute("""SELECT edited_count FROM comment WHERE id = %s""" % info_dict['id'])
             result = cursor.fetchone()
-            if result[0] is None:
+            if result['edited_count'] is None:
                 result = 1
             else:
-                result = result[0] + 1
-            sql = """UPDATE comment SET message = %s, submission_time = %s, edited_count = %s WHERE id = %s;"""
-            data = (info_dict['message'], dt, result, info_dict['comment_id'])
+                result = result['edited_count'] + 1
+            sql = """UPDATE comment SET message = %s, edited_count = %s WHERE id = %s;"""
+            data = (info_dict['message'], result, info_dict['id'])
             cursor.execute(sql, data)
         except:
             print("Something went wrong")
 
 
-def delete_comment(comment_id):
+def edit_q_or_a(info_dict, mode=None):
+    """Updates a question or answer. the mode can be question or answer. Requires a dictionary. keys: message and id"""
     with db.get_cursor() as cursor:
         try:
-            cursor.execute("""DELETE FROM comment WHERE id = %s""" % comment_id)
+            if mode == 'answer':
+                sql = """UPDATE answer SET message = %s WHERE id = %s;"""
+            else:
+                sql = """UPDATE question SET message = %s WHERE id = %s;"""
+            data = (info_dict['message'], info_dict['id'])
+            cursor.execute(sql, data)
+        except:
+            print("Something went wrong")
+
+
+def delete_comment(id_for_delete, mode):
+    """Deletes a comment"""
+    with db.get_cursor() as cursor:
+        try:
+            if mode == "question":
+                sql = """DELETE FROM question WHERE id = %s;"""
+            elif mode == 'answer':
+                sql = """DELETE FROM answer WHERE id = %s;"""
+            elif mode == 'comment':
+                sql = """DELETE FROM comment WHERE id = %s;"""
+            data = (id_for_delete,)
+            cursor.execute(sql, data)
         except:
             print("Something went wrong")
 
 
 if __name__ == '__main__':
-    #dicti = {"group_id": 1, 'message': 'lol da fak'}
-    #new_comment(dicti, True)
-    print(single_question(0))
+    return
