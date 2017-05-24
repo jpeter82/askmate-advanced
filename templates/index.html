@@ -7,7 +7,7 @@
             <h1>AskMate</h1>
             <p>AskMate is a crowdsourced Q&#38;A site where peaople can easily ask and answer to help each other.</p>
             <form action="#" method="GET">
-                <a href="#">Ask a new Question!</a>
+                <a href="/new-question">Ask a new Question!</a>
             </form>
             <br />
             <h2>Questions</h2>
@@ -31,13 +31,13 @@
                             <td>{{ question['submission_time'] }}</td>
                             <td>{{ question['view_number'] }}</td>
                             <td>{{ question['vote_number'] }}</td>
-                            <td><a href="#">{{ question['title'] }}</a></td>
-                            <td><a href="#">{{ question['message'] }}</a></td>
+                            <td><a href="/question/{{ question['id'] }}">{{ question['title'] }}</a></td>
+                            <td><a href="/question/{{ question['id'] }}">{{ question['message'] }}</a></td>
                             <td>
                                 <a href="#">EDIT</a>
                             </td>
                             <td>
-                                <a href="#">DELETE</a>
+                                <a href="/question/{{ question['id'] }}/delete">DELETE</a>
                             </td>
                             {% endfor %}
                         </tr>
