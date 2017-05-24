@@ -48,7 +48,7 @@ def all_questions():
             questions = cursor.fetchall()
             return questions
         except:
-            print("Something went wrong.")
+            print("Something went wrong: ALL")
 
 
 def get_question_by_answer_id(answer_id):
@@ -56,6 +56,7 @@ def get_question_by_answer_id(answer_id):
 
 
 def new_q_a(info_dict, mode):
+    print(info_dict)
     """Reqs a dict, key is 'message' if mode is answer, else /mode is question/ 'title' and 'message'"""
     with db.get_cursor() as cursor:
         try:
@@ -67,7 +68,7 @@ def new_q_a(info_dict, mode):
                 data = (info_dict['title'], info_dict['message'])
             cursor.execute(sql, data)
         except:
-            print("Something went wrong")
+            print("Something went wrong: newQA")
 
 
 def new_comment(info_dict, mode):
@@ -85,7 +86,7 @@ def new_comment(info_dict, mode):
                 info_dict['message'])
             cursor.execute(sql, data)
         except:
-            print('Something went wrong')
+            print('Something went wrong NEW comment')
 
 
 def edit_comment(info_dict):
@@ -102,7 +103,7 @@ def edit_comment(info_dict):
             data = (info_dict['message'], result, info_dict['id'])
             cursor.execute(sql, data)
         except:
-            print("Something went wrong")
+            print("Something went wrong EDIT COMMENT")
 
 
 def edit_q_a(info_dict, mode=None):
@@ -116,7 +117,7 @@ def edit_q_a(info_dict, mode=None):
             data = (info_dict['message'], info_dict['id'])
             cursor.execute(sql, data)
         except:
-            print("Something went wrong")
+            print("Something went wrong EDIT QA")
 
 
 def delete(id_for_delete, mode):
@@ -132,9 +133,8 @@ def delete(id_for_delete, mode):
             data = (id_for_delete,)
             cursor.execute(sql, data)
         except:
-            print("Something went wrong")
+            print("Something went wrong DELETE")
 
 
 if __name__ == '__main__':
     pass
-    print(single_question(1))

@@ -26,15 +26,15 @@ or theme == "answer" %} Answer {% else -%} Question {% endif %} {% endblock %} {
                 {% endif %} {% if theme == "question" or theme == "new-question" %}
 
                 <div>
-                    <label for="question-title">Title:</label></br>
-                    <input type="text" name="question-title" value="{% if theme == 'question' %}{{ question['question'][4] }}{% endif %}">
+                    <label for="title">Title:</label></br>
+                    <input type="text" name="title" value="{% if theme == 'question' %}{{ question['question'][4] }}{% endif %}">
                 </div>
 
                 {% endif %}
 
                 <div>
-                    <label for="question-message">Description:</label></br>
-                    <textarea type="text" name="question-message">{% if theme == "question" %}{{ question['question'][5] }}{% elif theme == "answer" %}{{ question['answers'][0][3] }}{% endif %}</textarea>
+                    <label for="message">Description:</label></br>
+                    <textarea type="text" name="message">{% if theme == "question" %}{{ question['question'][5] }}{% elif theme == "answer" %}{{ question['answers'][0][3] }}{% endif %}</textarea>
                 </div>
                 <div>
                     <label for="file-upload">Upload Image - Allowed formats: jpg, jpeg, png, gif, svg</label>

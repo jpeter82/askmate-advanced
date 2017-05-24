@@ -12,12 +12,20 @@ app = Flask(__name__)
 def index():
     error = None
     if request.method == 'POST':
-        if len(request.form.get('description', 0)) < 10 and int(request.form.get('typeID')) == 0:
+        if len(request.form.get('message', '')) < 10 and int(request.form.get('typeID')) == 0:
             return redirect(url_for('show_question_form'))
-        if len(request.form.get('description', 0)) < 10 and int(request.form.get('typeID')) == 1:
+        if len(request.form.get('message', '')) < 10 and int(request.form.get('typeID')) == 1:
             return redirect(url_for('show_answer_form', question_id=request.form.get('questionID')))
-        if not logic.process_insert_update(request.form):
-            error = 'An error occured while updating the database!'
+        if int(request.form['modID']) == -1:
+            if int(request.form['typeID']) == 0:
+                logic.new_q_a(request.form, 'question')
+            else:
+                logic.new_q_a(request.form, 'answer')
+        else:
+            if int(request.form['typeID']) == 0:
+                logic.edit_q_a(request.form, 'question')
+            else:
+                logic.edit_q_a(request.form, 'answer')
     display = logic.all_questions()
     return render_template('index.html', display=display, error=error)
 
@@ -42,7 +50,7 @@ def show_question_form(question_id=None):
     else:
         data = None
         theme = 'new-question'
-    return render_template('form.html', question=data)
+    return render_template('form.html', question=data, theme=theme)
 
 
 @app.route('/question/<int:question_id>/new-answer', methods=['GET', 'POST'])
