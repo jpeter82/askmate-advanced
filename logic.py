@@ -4,8 +4,9 @@ from datetime import datetime
 # business logic comes here
 
 
-def single_question(question_id):
+def single_question(question_id, answers=False):
     """Returns a single question and corresponding anwers with comments in dict"""
+    answer = None
     with db.get_cursor() as cursor:
         data = (question_id,)
 
@@ -23,17 +24,18 @@ def single_question(question_id):
         cursor.execute(sql, data)
         question = cursor.fetchall()
 
-        sql2 = """SELECT a.message,
-                         a.submission_time,
-                         a.vote_number,
-                         c.message,
-                         c.submission_time
-                  FROM answer a
-                  LEFT OUTER JOIN comment c ON a.id = c.answer_id
-                  WHERE a.question_id = %s
-                  ORDER BY a.submission_time DESC, c.submission_time DESC;"""
-        cursor.execute(sql2, data)
-        answer = cursor.fetchall()
+        if answers:
+            sql2 = """SELECT a.message,
+                            a.submission_time,
+                            a.vote_number,
+                            c.message,
+                            c.submission_time
+                    FROM answer a
+                    LEFT OUTER JOIN comment c ON a.id = c.answer_id
+                    WHERE a.question_id = %s
+                    ORDER BY a.submission_time DESC, c.submission_time DESC;"""
+            cursor.execute(sql2, data)
+            answer = cursor.fetchall()
 
         result = {'question': question, 'answer': answer}
         return result
@@ -42,17 +44,17 @@ def single_question(question_id):
 def all_questions():
     """Returns all the questions list of dicts"""
     with db.get_cursor() as cursor:
-        try:
-            sql = """SELECT * FROM question"""
-            cursor.execute(sql)
-            questions = cursor.fetchall()
-            return questions
-        except:
-            print("Something went wrong: ALL")
-
-
-def get_question_by_answer_id(answer_id):
-    return
+        sql = """SELECT id,
+                        title,
+                        message,
+                        view_number,
+                        vote_number,
+                        submission_time
+                 FROM question
+                 ORDER BY submission_time DESC"""
+        cursor.execute(sql)
+        questions = cursor.fetchall()
+    return questions
 
 
 def new_q_a(info_dict, mode):

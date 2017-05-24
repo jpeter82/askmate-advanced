@@ -6,16 +6,13 @@
         <div>
             <h1>AskMate</h1>
             <p>AskMate is a crowdsourced Q&#38;A site where peaople can easily ask and answer to help each other.</p>
-            <form action="#" method="GET">
-                <a href="/new-question">Ask a new Question!</a>
-            </form>
+            <a href="/new-question">Ask new Question!</a>
             <br />
             <h2>Questions</h2>
             {% if display %}
             <div>
                 <table>
                     <thead>
-                        <th>ID</th>
                         <th>Submisson Time</th>
                         <th>View Number</th>
                         <th>Vote Number</th>
@@ -27,29 +24,26 @@
                     <tbody>
                         {% for question in display %}
                         <tr>
-                            <td>{{ question['id'] }}</td>
                             <td>{{ question['submission_time'] }}</td>
                             <td>{{ question['view_number'] }}</td>
                             <td>{{ question['vote_number'] }}</td>
                             <td><a href="/question/{{ question['id'] }}">{{ question['title'] }}</a></td>
                             <td><a href="/question/{{ question['id'] }}">{{ question['message'] }}</a></td>
                             <td>
-                                <a href="#">EDIT</a>
+                                <a href="/question/{{ question['id'] }}/edit">EDIT</a>
                             </td>
                             <td>
                                 <a href="/question/{{ question['id'] }}/delete">DELETE</a>
                             </td>
                             {% endfor %}
                         </tr>
-                        {% else %}
-                        <div>
-                            <h2>Don't have any question to display.</h2>
-                            <h3> Press the 'Ask a new question!' button above to add a question!</h3>
-                        </div>
                     </tbody>
                 </table>
             </div>
-
+            {% else %}
+            <div>
+                <h2>No questions to display.</h2>
+            </div>
             {% endif %}
         </div>
     </div>

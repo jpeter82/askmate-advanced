@@ -2,7 +2,6 @@ from flask import Flask, request, render_template, url_for, redirect
 import config
 import logic
 import sys
-# Here comes the Flask part
 
 app = Flask(__name__)
 
@@ -10,24 +9,21 @@ app = Flask(__name__)
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/list', methods=['GET', 'POST'])
 def index():
-    error = None
     if request.method == 'POST':
         if len(request.form.get('message', '')) < 10 and int(request.form.get('typeID')) == 0:
             return redirect(url_for('show_question_form'))
+
         if len(request.form.get('message', '')) < 10 and int(request.form.get('typeID')) == 1:
             return redirect(url_for('show_answer_form', question_id=request.form.get('questionID')))
+
+        type = 'question' if int(request.form['typeID']) == 0 else 'answer'
         if int(request.form['modID']) == -1:
-            if int(request.form['typeID']) == 0:
-                logic.new_q_a(request.form, 'question')
-            else:
-                logic.new_q_a(request.form, 'answer')
+            # INSERT
+            logic.new_q_a(request.form, type)
         else:
-            if int(request.form['typeID']) == 0:
-                logic.edit_q_a(request.form, 'question')
-            else:
-                logic.edit_q_a(request.form, 'answer')
-    display = logic.all_questions()
-    return render_template('index.html', display=display, error=error)
+            # UPDATE
+            logic.edit_q_a(request.form, type)
+    return render_template('index.html', display=logic.all_questions())
 
 
 @app.route('/question/<int:question_id>')
@@ -46,10 +42,10 @@ def question(question_id):
 def show_question_form(question_id=None):
     if question_id:
         theme = 'question'
-        data = logic.single_question(question_id, answers=False)
+        data = logic.single_question(question_id)
     else:
-        data = None
         theme = 'new-question'
+        data = None
     return render_template('form.html', question=data, theme=theme)
 
 
