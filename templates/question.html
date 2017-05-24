@@ -1,66 +1,113 @@
-{% extends "base.html" %} {% block title %} - {% if question %} Edit {% else -%} Add new {% endif %} Record{% endblock %}
+{% extends "base.html" %}
+
+{% block title %} - {% if question %} Edit {% else -%} Add new {% endif %} Record{% endblock %}
+
 {% block content %}
 
-<div>
-    <div>
         <div>
-            <h1>TITLE</h1>
+            <h1>{{ data['question'][0]['title'] }}</h1>
             <table>
                 <tr>
                     <td>
-                        <span>  </span>
+                        <div>
+                            <span><a href="#">VOTE +</a></span>
+                        </div>
+                        <div>    
+                            <span><a href="#">VOTE -</a></span>
+                        </div>
                     </td>
                     <td>
-                        <a href="#">VOTE +</a>
-                        <a href="#">VOTE -</a>
+                        <span>{{ data['question'][0]['vote_number'] }}</span>
                     </td>
-                    <td> </td>
                     <td>
-                        <a href="#">EDIT</span></a>
-                        <a href="#">DELETE</span></a>
+                        <span>{{ data['question'][0]['question_date'] }}</span>
                     </td>
-                </tr>
-                <tr>
                     <td>
-
+                        <span>{{ data['question'][0]['question_body'] }}</span>
+                    </td>
+                    <td>
+                        <span>{{ data['question'][0]['view_number'] }}</span>
+                    </td>
+                    <td>
                         <img src='#' alt="Uploaded Image">
-
+                    </td>
+                    <td>
+                        <span><a href="#">EDIT</a></span>
+                        <span><a href="#">DELETE</a></span>
                     </td>
                 </tr>
             </table>
-            <br />
-            <a href="#">Add an answer</a>
-
-            <h3>Answer #?</h3>
+        </div>
+        <br />
+        {% for comment in data['question'] %}
+            {% if comment['comment_body'] %}
             <table>
                 <tr>
                     <td>
-                        <span>  </span>
+                        <span>{{ comment['comment_date'] }}</span>
                     </td>
                     <td>
-                        <a href="#">VOTE +</a>
-                        <a href="#">VOTE -</a>
+                        <span>{{ comment['comment_body'] }}</span>
                     </td>
-                    <td> </td>
+                </tr>
+            </table>
+            {% endif %}
+        {% endfor %}
+        <div>
+            <a href="#">Add an answer</a>
+        </div>
+        {% if data['answer'] %}
+        <div>
+            {% for item in data['answer'] %}
+            <h3>Answer {{ loop.index }}</h3>
+            <table>
+                <tr>
+                    <td>
+                        <div>
+                            <span><a href="#">VOTE +</a></span>
+                        </div>
+                        <div>    
+                            <span><a href="#">VOTE -</a></span>
+                        </div>
+                    </td>
+                    <td>
+                        <span>{{ item['vote_number'] }}</span>
+                    </td>
+                    <td>
+                        <span>{{ item['answer_date'] }}</span>
+                    </td>
+                    <td>
+                        <span>{{ item['answer_body'] }}</span>
+                    </td>
+                    <td>
+                        <img src='#' alt="Uploaded Image">
+                    </td>
                     <td>
                         <a href="#">EDIT</a>
                         <a href="#">DELETE</a>
                     </td>
                 </tr>
-                <tr>
-                    <td>
-
-                        <img src='#' alt="Uploaded Image">
-
-                    </td>
-                </tr>
             </table>
-
+            {% for response in data['answer'] %}
+                {% if response['comment_body'] %}
+                <table>
+                    <tr>
+                        <td>
+                            <span>{{ response['comment_date'] }}</span>
+                        </td>
+                        <td>
+                            <span>{{ response['comment_body'] }}</span>
+                        </td>
+                    </tr>
+                </table>
+                {% endif %}
+            {% endfor %}
+            {% endfor %}
+        </div>
+        {% else %}
             <div>
                 <h1>No answers for this quesion yet.</h1>
             </div>
+        {% endif %}
 
-        </div>
-    </div>
-</div>
 {%- endblock content %}

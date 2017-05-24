@@ -11,12 +11,12 @@ def single_question(question_id, answers=False):
         data = (question_id,)
 
         sql = """SELECT q.title,
-                        q.message,
-                        q.submission_time,
+                        q.message AS question_body,
+                        to_char(q.submission_time, 'YYYY-MM-DD HH24:MI') AS question_date,
                         q.view_number,
                         q.vote_number,
-                        c.message,
-                        c.submission_time
+                        c.message AS comment_body,
+                        to_char(c.submission_time, 'YYYY-MM-DD HH24:MI') AS comment_date
                  FROM question q
                  LEFT OUTER JOIN comment c ON q.id = c.question_id
                  WHERE q.id = %s
@@ -25,15 +25,15 @@ def single_question(question_id, answers=False):
         question = cursor.fetchall()
 
         if answers:
-            sql2 = """SELECT a.message,
-                            a.submission_time,
-                            a.vote_number,
-                            c.message,
-                            c.submission_time
-                    FROM answer a
-                    LEFT OUTER JOIN comment c ON a.id = c.answer_id
-                    WHERE a.question_id = %s
-                    ORDER BY a.submission_time DESC, c.submission_time DESC;"""
+            sql2 = """SELECT a.message AS answer_body,
+                             to_char(a.submission_time, 'YYYY-MM-DD HH24:MI') AS answer_date,
+                             a.vote_number,
+                             c.message AS comment_body,
+                             to_char(c.submission_time, 'YYYY-MM-DD HH24:MI') AS comment_date
+                      FROM answer a
+                      LEFT OUTER JOIN comment c ON a.id = c.answer_id
+                      WHERE a.question_id = %s
+                      ORDER BY a.vote_number DESC, a.submission_time DESC, c.submission_time DESC;"""
             cursor.execute(sql2, data)
             answer = cursor.fetchall()
 

@@ -33,8 +33,7 @@ def question(question_id):
         logic.update_view_number(question_id)
     except IndexError:
         pass"""
-    questions = logic.single_question(question_id)
-    return render_template("question.html", questions=questions)
+    return render_template("question.html", data=logic.single_question(question_id, answers=True))
 
 
 @app.route('/new-question', methods=['GET', 'POST'])

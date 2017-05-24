@@ -1,5 +1,7 @@
-{% extends "base.html" %} {% block title %} - {% if question %} Edit {% else -%} Add new {% endif %} {% if theme == "new-answer"
-or theme == "answer" %} Answer {% else -%} Question {% endif %} {% endblock %} {% block content %}
+{% extends "base.html" %}
+{% block title %} - {% if question %} Edit {% else -%} Add new {% endif %} {% if theme == "new-answer"
+or theme == "answer" %} Answer {% else -%} Question {% endif %} {% endblock %}
+{% block content %}
 <div>
     <div>
         <div>
@@ -9,27 +11,22 @@ or theme == "answer" %} Answer {% else -%} Question {% endif %} {% endblock %} {
             </h1>
             <form action="/" method="POST" enctype='multipart/form-data'>
                 <div>
-                    <input type="hidden" name="modID" value="{% if theme == 'question' %}{{ question['question'][0] }}{% elif theme == 'answer' %}{{ question['answers'][0][0] }}{% else %}-1{% endif %}"
-                    />
+                    <input type="hidden" name="modID" value="{% if theme == 'question' %}{{ question['question'][0] }}{% elif theme == 'answer' %}{{ question['answers'][0][0] }}{% else %}-1{% endif %}" />
                 </div>
                 <div>
-                    <input type="hidden" name="typeID" value="{% if theme == 'new-question' or theme == 'question' %}0{% else %}1{% endif %}"
-                    />
+                    <input type="hidden" name="typeID" value="{% if theme == 'new-question' or theme == 'question' %}0{% else %}1{% endif %}" />
                 </div>
-
                 {% if question_id %}
-
                 <div>
                     <input type="hidden" name="questionID" value="{{ question_id }}" />
                 </div>
+                {% endif %}
 
-                {% endif %} {% if theme == "question" or theme == "new-question" %}
-
+                {% if theme == "question" or theme == "new-question" %}
                 <div>
                     <label for="title">Title:</label></br>
                     <input type="text" name="title" value="{% if theme == 'question' %}{{ question['question'][4] }}{% endif %}">
                 </div>
-
                 {% endif %}
 
                 <div>
