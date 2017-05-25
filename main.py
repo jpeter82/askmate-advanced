@@ -10,6 +10,8 @@ app = Flask(__name__)
 @app.route('/list', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
+        print(request.form)
+        print()
         if len(request.form.get('message', '')) < 10 and int(request.form.get('typeID')) == 0:
             return redirect(url_for('show_question_form'))
 
@@ -41,11 +43,15 @@ def question(question_id):
 def show_question_form(question_id=None):
     if question_id:
         theme = 'question'
-        data = logic.single_question(question_id)
+        print("szar")
+        data = logic.single_dict(question_id, 'question')
     else:
         theme = 'new-question'
         data = None
-    return render_template('form.html', question=data, theme=theme)
+    print(theme)
+    print(data)
+    print(question_id)
+    return render_template('form.html', question=data, theme=theme, question_id=question_id)
 
 
 @app.route('/question/<int:question_id>/new-answer', methods=['GET', 'POST'])
@@ -53,16 +59,19 @@ def show_question_form(question_id=None):
 def show_answer_form(answer_id=None, question_id=None):
     if answer_id:
         theme = 'answer'
-        data = logic.get_question_by_answer_id(answer_id)
+        data = logic.single_dict(answer_id, 'answer')
     else:
         data = None
         theme = 'new-answer'
-    return render_template('form.html', theme=theme, question=data, question_id=question_id)
+    print(theme)
+    print(data)
+    print(answer_id)
+    return render_template('form.html', theme=theme, question=data, question_id=question_id, answer_id=answer_id)
 
 
 @app.route("/answer/<int:answer_id>/delete")
 def delete_answer(answer_id):
-    logic.process_delete(answer_id, questions=False)
+    logic.delete(answer_id, 'answer')
     return redirect(url_for('index'))
 
 
