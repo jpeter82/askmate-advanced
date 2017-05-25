@@ -6,22 +6,21 @@ or theme == "answer" %} Answer {% else -%} Question {% endif %} {% endblock %}
     <div>
         <div>
             <h1>
-                <p>{{ theme }}</p>
                 {% if theme == "new-answer" %} Create an answer {% elif theme == "new-question" %} Create a question {% elif theme == "answer"
                 %} Edit an answer {% elif theme == "question" %} Edit a question {% endif %}
             </h1>
             <form action="/" method="POST" enctype='multipart/form-data'>
                 <div>
                     <input type="hidden" name="modID" value="{% if theme == 'question' %} 0 {% elif theme == 'answer' %} 1
-                     {% elif theme == 'new-comment' %} -2 {% elif theme == 'new-comment' %} -3 {% else %}-1{% endif %}" />
+                     {% elif theme == 'new-comment' %} -2 {% elif theme == 'comment' %} -3 {% else %}-1{% endif %}" />
                 </div>
                 <div>
                     <input type="hidden" name="typeID" value="{% if theme == 'new-question' or theme == 'question' or theme == 'new-question-comment' %} 0
                     {% elif theme == 'comment' %} -3 {% else %}1{% endif %}" />
                 </div>
-                {% if theme == "new-comment" %}
+                {% if theme == "comment" %}
                 <div>
-                    <input type="hidden" name="commentID" value="">
+                    <input type="hidden" name="commentID" value="{{ comment_id }}">
                 </div>
                 {% endif %}
                 {% if question_id %}
@@ -34,19 +33,16 @@ or theme == "answer" %} Answer {% else -%} Question {% endif %} {% endblock %}
                     <input type="hidden" name="answerID" value="{{ answer_id }}" />
                 </div>
                 {% endif %}
-                <p>{{answer_id}}</p>
                 {% if theme == "question" or theme == "new-question" %}
                 <div>
                     <label for="title">Title:</label></br>
-                    <input type="text" name="title" value="{% if theme == 'question' %}{{ question['title'] }}{% endif %}">
+                    <input type="text" name="title" value="{% if theme == 'question' %}{{ data['title'] }}{% endif %}" required>
                 </div>
                 {% endif %}
-                <p>{{question}}</p>
-                <p>{{theme}}</p>
 
                 <div>
                     <label for="message">Description:</label></br>
-                    <textarea type="text" name="message">{% if theme == "question" %}{{ question['message'] }}{% elif theme == "answer" %}{{ question['message'] }}{% endif %}</textarea>
+                    <textarea type="text" name="message" minlength="10" required>{% if theme == "question" %}{{ data['message'] }}{% elif theme == "answer" %}{{ data['message'] }}{% endif %}</textarea>
                 </div>
                 <div>
                     <label for="file-upload">Upload Image - Allowed formats: jpg, jpeg, png, gif, svg</label>

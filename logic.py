@@ -16,7 +16,8 @@ def single_question(question_id, answers=False):
                         q.view_number,
                         q.vote_number,
                         c.message AS comment_body,
-                        to_char(c.submission_time, 'YYYY-MM-DD HH24:MI') AS comment_date
+                        to_char(c.submission_time, 'YYYY-MM-DD HH24:MI') AS comment_date,
+                        c.id as comment_id
                  FROM question q
                  LEFT OUTER JOIN comment c ON q.id = c.question_id
                  WHERE q.id = %s
@@ -30,7 +31,8 @@ def single_question(question_id, answers=False):
                              to_char(a.submission_time, 'YYYY-MM-DD HH24:MI') AS answer_date,
                              a.vote_number,
                              c.message AS comment_body,
-                             to_char(c.submission_time, 'YYYY-MM-DD HH24:MI') AS comment_date
+                             to_char(c.submission_time, 'YYYY-MM-DD HH24:MI') AS comment_date,
+                             c.id as comment_id
                       FROM answer a
                       LEFT OUTER JOIN comment c ON a.id = c.answer_id
                       WHERE a.question_id = %s
@@ -76,7 +78,6 @@ def all_questions():
 
 
 def new_q_a(info_dict, mode):
-    print(info_dict)
     """Reqs a dict, key is 'message' if mode is answer, else /mode is question/ 'title' and 'message'"""
     with db.get_cursor() as cursor:
         try:
@@ -94,7 +95,6 @@ def new_q_a(info_dict, mode):
 def new_comment(info_dict):
     """dict keys are id and message, mode answer or question """
     with db.get_cursor() as cursor:
-        print('questionID' in info_dict)
         try:
             if 'questionID' in info_dict:
                 sql = """INSERT INTO comment (question_id, message)
@@ -114,14 +114,14 @@ def edit_comment(info_dict):
     """Reqs a dict, where keys are message and id"""
     with db.get_cursor() as cursor:
         try:
-            cursor.execute("""SELECT edited_count FROM comment WHERE id = %s""" % info_dict['id'])
+            cursor.execute("""SELECT edited_count FROM comment WHERE id = %s""" % info_dict['commentID'])
             result = cursor.fetchone()
             if result['edited_count'] is None:
                 result = 1
             else:
                 result = result['edited_count'] + 1
             sql = """UPDATE comment SET message = %s, edited_count = %s WHERE id = %s;"""
-            data = (info_dict['message'], result, info_dict['id'])
+            data = (info_dict['message'], result, info_dict['commentID'])
             cursor.execute(sql, data)
         except:
             print("Something went wrong EDIT COMMENT")
@@ -194,6 +194,3 @@ def user_search(search_phrase):
         cursor.execute(sql, data)
         records = cursor.fetchall()
     return records
-
-if __name__ == '__main__':
-    pass

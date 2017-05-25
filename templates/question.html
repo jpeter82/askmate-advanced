@@ -46,6 +46,9 @@
         <td>
             <span>{{ comment['comment_body'] }}</span>
         </td>
+        <td>
+            <span><a href="/comments/{{ comment['comment_id'] }}/delete">Delete</a></span>
+        </td>
     </tr>
 </table>
 {% endif %} {% endfor %}
@@ -94,6 +97,9 @@
             </td>
             <td>
                 <span>{{ response['comment_body'] }}</span>
+            </td>
+            <td>
+                <span><a href="/comments/{{ response['comment_id'] }}/delete">Delete</a></span>
             </td>
         </tr>
     </table>
