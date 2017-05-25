@@ -91,18 +91,19 @@ def new_q_a(info_dict, mode):
             print("Something went wrong: newQA")
 
 
-def new_comment(info_dict, mode):
+def new_comment(info_dict):
     """dict keys are id and message, mode answer or question """
     with db.get_cursor() as cursor:
+        print('questionID' in info_dict)
         try:
-            if mode == 'question':
+            if 'questionID' in info_dict:
                 sql = """INSERT INTO comment (question_id, message)
                 VALUES(%s, %s);"""
-            elif mode == 'answer':
+            else:
                 sql = """INSERT INTO comment (answer_id, message)
                 VALUES(%s, %s);"""
             data = (
-                info_dict['id'],
+                info_dict['questionID'] if 'questionID' in info_dict else info_dict['answerID'],
                 info_dict['message'])
             cursor.execute(sql, data)
         except:

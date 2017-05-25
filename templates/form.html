@@ -6,16 +6,24 @@ or theme == "answer" %} Answer {% else -%} Question {% endif %} {% endblock %}
     <div>
         <div>
             <h1>
+                <p>{{ theme }}</p>
                 {% if theme == "new-answer" %} Create an answer {% elif theme == "new-question" %} Create a question {% elif theme == "answer"
                 %} Edit an answer {% elif theme == "question" %} Edit a question {% endif %}
             </h1>
             <form action="/" method="POST" enctype='multipart/form-data'>
                 <div>
-                    <input type="hidden" name="modID" value="{% if theme == 'question' %}0{% elif theme == 'answer' %}1{% else %}-1{% endif %}" />
+                    <input type="hidden" name="modID" value="{% if theme == 'question' %} 0 {% elif theme == 'answer' %} 1
+                     {% elif theme == 'new-comment' %} -2 {% elif theme == 'new-comment' %} -3 {% else %}-1{% endif %}" />
                 </div>
                 <div>
-                    <input type="hidden" name="typeID" value="{% if theme == 'new-question' or theme == 'question' %}0{% else %}1{% endif %}" />
+                    <input type="hidden" name="typeID" value="{% if theme == 'new-question' or theme == 'question' or theme == 'new-question-comment' %} 0
+                    {% elif theme == 'comment' %} -3 {% else %}1{% endif %}" />
                 </div>
+                {% if theme == "new-comment" %}
+                <div>
+                    <input type="hidden" name="commentID" value="">
+                </div>
+                {% endif %}
                 {% if question_id %}
                 <div>
                     <input type="hidden" name="questionID" value="{{ question_id }}" />

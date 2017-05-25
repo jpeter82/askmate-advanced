@@ -11,7 +11,6 @@ app = Flask(__name__)
 def index():
     if request.method == 'POST':
         print(request.form)
-        print()
         if len(request.form.get('message', '')) < 10 and int(request.form.get('typeID')) == 0:
             return redirect(url_for('show_question_form'))
 
@@ -22,6 +21,10 @@ def index():
         if int(request.form['modID']) == -1:
             # INSERT
             logic.new_q_a(request.form, type)
+        elif int(request.form['modID']) == -2:
+            logic.new_comment(request.form)
+        elif int(request.form['modID']) == -3:
+            logic.edit_comment(request.form)                        # form if theme == comment commentID
         else:
             # UPDATE
             logic.edit_q_a(request.form, type)
@@ -39,33 +42,34 @@ def question(question_id):
 
 
 @app.route('/new-question', methods=['GET', 'POST'])
-@app.route('/question/<int:question_id>/edit', methods=['GET', 'POST'])
-def show_question_form(question_id=None):
+@app.route('/question/<int:question_id>/<action>', methods=['GET', 'POST'])
+def show_question_form(question_id=None, action=None):
     if question_id:
-        theme = 'question'
-        print("szar")
-        data = logic.single_dict(question_id, 'question')
+        if action == "edit":
+            theme = 'question'
+            data = logic.single_dict(question_id, 'question')
+        else:
+            theme = "new-comment"
+            data = None
     else:
         theme = 'new-question'
         data = None
-    print(theme)
-    print(data)
-    print(question_id)
     return render_template('form.html', question=data, theme=theme, question_id=question_id)
 
 
 @app.route('/question/<int:question_id>/new-answer', methods=['GET', 'POST'])
-@app.route('/answer/<int:answer_id>/edit', methods=['GET', 'POST'])
-def show_answer_form(answer_id=None, question_id=None):
+@app.route('/answer/<int:answer_id>/<action>', methods=['GET', 'POST'])
+def show_answer_form(answer_id=None, question_id=None, action=None):
     if answer_id:
-        theme = 'answer'
-        data = logic.single_dict(answer_id, 'answer')
+        if action == "edit":
+            theme = 'answer'
+            data = logic.single_dict(answer_id, 'answer')
+        else:
+            theme = "new-comment"
+            data = None
     else:
         data = None
         theme = 'new-answer'
-    print(theme)
-    print(data)
-    print(answer_id)
     return render_template('form.html', theme=theme, question=data, question_id=question_id, answer_id=answer_id)
 
 
