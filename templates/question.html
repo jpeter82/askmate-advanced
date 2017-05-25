@@ -54,7 +54,7 @@
             {% endif %}
         {% endfor %}
         <div>
-            <a href="#">Add an answer</a>
+            <a href="/question/{{ data['question'][0]['id'] }}/new-answer">Add an answer</a>
         </div>
         {% if data['answer'] %}
         <div>
@@ -83,8 +83,8 @@
                         <img src='#' alt="Uploaded Image">
                     </td>
                     <td>
-                        <a href="#">EDIT</a>
-                        <a href="#">DELETE</a>
+                        <a href="/answer/{{item['id']}}/edit">EDIT</a>
+                        <a href="/answer/{{item['id']}}/delete">DELETE</a>
                     </td>
                 </tr>
             </table>
