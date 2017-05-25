@@ -4,6 +4,7 @@ import logic
 import sys
 
 app = Flask(__name__)
+app.jinja_env.add_extension('jinja2.ext.do')
 
 
 @app.route('/', methods=['GET', 'POST'])
