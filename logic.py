@@ -11,6 +11,7 @@ def single_question(question_id, answers=False):
 
         sql = """SELECT q.title,
                         q.message AS question_body,
+                        q.id,
                         to_char(q.submission_time, 'YYYY-MM-DD HH24:MI') AS question_date,
                         q.view_number,
                         q.vote_number,
@@ -25,6 +26,7 @@ def single_question(question_id, answers=False):
 
         if answers:
             sql2 = """SELECT a.message AS answer_body,
+                             a.id,
                              to_char(a.submission_time, 'YYYY-MM-DD HH24:MI') AS answer_date,
                              a.vote_number,
                              c.message AS comment_body,
@@ -38,6 +40,23 @@ def single_question(question_id, answers=False):
 
         result = {'question': question, 'answer': answer}
         return result
+
+
+def single_dict(id_to_get, mode):
+    with db.get_cursor() as cursor:
+        try:
+            if mode == 'answer':
+                sql = """SELECT * FROM answer WHERE id = %s;"""
+            elif mode == 'question':
+                sql = """SELECT * FROM question WHERE id = %s;"""
+            else:
+                sql = """SELECT * FROM comment WHERE id = %s;"""
+            data = (id_to_get,)
+            cursor.execute(sql, data)
+            result = cursor.fetchone()
+            return result
+        except:
+            print("Something went wrong: SINGLE answer")
 
 
 def all_questions():
@@ -62,8 +81,8 @@ def new_q_a(info_dict, mode):
     with db.get_cursor() as cursor:
         try:
             if mode == "answer":
-                sql = """INSERT INTO answer (message) VALUES(%s);"""
-                data = (info_dict['message'],)
+                sql = """INSERT INTO answer (message, question_id) VALUES(%s, %s);"""
+                data = (info_dict['message'], info_dict['questionID'])
             elif mode == "question":
                 sql = """INSERT INTO question (title, message) VALUES(%s, %s);"""
                 data = (info_dict['title'], info_dict['message'])
@@ -113,9 +132,10 @@ def edit_q_a(info_dict, mode=None):
         try:
             if mode == 'answer':
                 sql = """UPDATE answer SET message = %s WHERE id = %s;"""
+                data = (info_dict['message'], info_dict[mode+'ID'])
             else:
-                sql = """UPDATE question SET message = %s WHERE id = %s;"""
-            data = (info_dict['message'], info_dict['id'])
+                sql = """UPDATE question SET message = %s, title = %s WHERE id = %s;"""
+                data = (info_dict['message'], info_dict['title'], info_dict[mode+'ID'])
             cursor.execute(sql, data)
         except:
             print("Something went wrong EDIT QA")
