@@ -157,5 +157,42 @@ def delete(id_for_delete, mode):
             print("Something went wrong DELETE")
 
 
+def user_search(search_phrase):
+    """Returns search results for user query"""
+    with db.get_cursor() as cursor:
+        data = {'phrase': search_phrase}
+        sql = """SELECT q.id AS question_id,
+                        REPLACE(q.title, %(phrase)s, CONCAT('<span class="special-format">', %(phrase)s, '</span>')) AS title,
+                        q.message AS question_body,
+                        q.view_number,
+                        q.vote_number AS question_vote,
+                        to_char(q.submission_time, 'YYYY-MM-DD HH24:MI') AS submission_time,
+                        NULL AS answer_id,
+                        NULL AS answer_body,
+                        NULL AS answer_date,
+                        NULL AS answer_vote
+                 FROM question q
+                 WHERE LOWER(q.title) LIKE CONCAT('%', LOWER(%(phrase)s), '%')
+
+                 UNION ALL
+
+                 SELECT q.id AS question_id,
+                        REPLACE(q.title, %(phrase)s, CONCAT('<span class="special-format">', %(phrase)s, '</span>')) AS title,
+                        q.message AS question_body,
+                        q.view_number,
+                        q.vote_number AS question_vote,
+                        to_char(q.submission_time, 'YYYY-MM-DD HH24:MI') AS submission_time,
+                        a.id AS answer_id,
+                        REPLACE(a.message, %(phrase)s, CONCAT('<span class="special-format">', %(phrase)s, '</span>')) AS answer_body,
+                        to_char(a.submission_time, 'YYYY-MM-DD HH24:MI') AS answer_date,
+                        a.vote_number AS answer_vote
+                 FROM question q
+                 LEFT OUTER JOIN answer a ON q.id = a.question_id
+                 WHERE LOWER(a.message) LIKE CONCAT('%', LOWER(%(phrase)s), '%')
+                 ORDER BY question_id DESC, answer_id DESC;"""
+        cursor.execute(sql, data)
+        records = cursor.fetchall()
+    return records
+
 if __name__ == '__main__':
     pass
