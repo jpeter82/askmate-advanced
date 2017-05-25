@@ -83,9 +83,11 @@ def delete_question(question_id):
 
 @app.route("/search", methods=['GET'])
 def search_questions():
-    data = request.args.get('q', None)
-    # TODO_: call search from logic
-    return render_template('search.html', data=data)
+    data = None
+    search_phrase = request.args.get('q', None)
+    if search_phrase is not None:
+        data = logic.user_search(search_phrase)
+    return render_template('search.html', search_phrase=search_phrase, data=data)
 
 
 """
