@@ -1,6 +1,6 @@
 {% extends "base.html" %} {% block title %} - {% if question %} Edit {% else -%} Add new {% endif %} Record{% endblock %}
 {% block content %}
-
+{% set last_answer = [] %}
 <div>
     <h1>{{ data['question'][0]['title'] }}</h1>
     <table>
@@ -20,7 +20,9 @@
                 <span>{{ data['question'][0]['question_date'] }}</span>
             </td>
             <td>
-                <span>{{ data['question'][0]['question_body'] }}</span>
+                {% autoescape false %}
+                <span>{{ data['question'][0]['question_body']|replace("\n", "<br/>") }}</span>
+                {% endautoescape %}
             </td>
             <td>
                 <span>{{ data['question'][0]['view_number'] }}</span>
@@ -44,7 +46,9 @@
             <span>{{ comment['comment_date'] }}</span>
         </td>
         <td>
-            <span>{{ comment['comment_body'] }}</span>
+            {% autoescape false %}
+            <span>{{ comment['comment_body']|replace("\n", "<br/>") }}</span>
+            {% endautoescape %}
         </td>
         <td>
             <span><a href="/comments/{{ comment['comment_id'] }}/delete">Delete</a></span>
@@ -58,52 +62,64 @@
 {% if data['answer'] %}
 <div>
     {% for item in data['answer'] %}
-    <h3>Answer {{ loop.index }}</h3>
-    <table>
-        <tr>
-            <td>
-                <div>
-                    <span><a href="#">VOTE +</a></span>
-                </div>
-                <div>
-                    <span><a href="#">VOTE -</a></span>
-                </div>
-            </td>
-            <td>
-                <span>{{ item['vote_number'] }}</span>
-            </td>
-            <td>
-                <span>{{ item['answer_date'] }}</span>
-            </td>
-            <td>
-                <span>{{ item['answer_body'] }}</span>
-            </td>
-            <td>
-                <img src='#' alt="Uploaded Image">
-            </td>
-            <td>
-                <a href="/answer/{{item['id']}}/edit">EDIT</a>
-                <a href="/answer/{{item['id']}}/delete">DELETE</a>
-                <span><a href="/answer/{{ data['answer'][0]['id'] }}/new-comment"/>Add comment</a></span>
+        {% if item['answer_id'] not in last_answer %}
+        <h3>Answer {{ last_answer|length + 1 }}</h3>
+        <table>
+            <tr>
+                <td>
+                    <div>
+                        <span><a href="#">VOTE +</a></span>
+                    </div>
+                    <div>
+                        <span><a href="#">VOTE -</a></span>
+                    </div>
+                </td>
+                <td>
+                    <span>{{ item['vote_number'] }}</span>
+                </td>
+                <td>
+                    <span>{{ item['answer_date'] }}</span>
+                </td>
+                <td>
+                    {% autoescape false %}
+                    <span>{{ item['answer_body']|replace("\n", "<br/>") }}</span>
+                    {% endautoescape %}
+                </td>
+                <td>
+                    <img src='#' alt="Uploaded Image">
+                </td>
+                <td>
+                    <a href="/answer/{{item['answer_id']}}/edit">EDIT</a>
+                    <a href="/answer/{{item['answer_id']}}/delete">DELETE</a>
+                    <span><a href="/answer/{{item['answer_id']}}/new-comment"/>Add comment</a></span>
 
-            </td>
-        </tr>
-    </table>
-    {% for response in data['answer'] %} {% if response['comment_body'] %}
-    <table>
-        <tr>
-            <td>
-                <span>{{ response['comment_date'] }}</span>
-            </td>
-            <td>
-                <span>{{ response['comment_body'] }}</span>
-            </td>
-            <td>
-                <span><a href="/comments/{{ response['comment_id'] }}/delete">Delete</a></span>
-            </td>
-        </tr>
-    </table>
-    {% endif %} {% endfor %} {% endfor %}
+                </td>
+            </tr>
+        </table>
+            {% for response in data['answer'] %}
+                {% if response['comment_body'] %}
+                    {% if response['answer_id'] == item['answer_id'] %}
+                    <table>
+                        <tr>
+                            <td>
+                                <span>{{ response['comment_date'] }}</span>
+                            </td>
+                            <td>
+                                {% autoescape false %}
+                                <span>{{ response['comment_body']|replace("\n", "<br/>") }}</span>
+                                {% endautoescape %}
+                            </td>
+                            <td>
+                                <span><a href="/comments/{{ response['comment_id'] }}/delete">Delete</a></span>
+                            </td>
+                        </tr>
+                    </table>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+        {% do last_answer.append(item['answer_id']) %}
+        {% endif %}
+    {% endfor %}
 </div>
 {% else %}
 <div>

@@ -27,12 +27,13 @@ def single_question(question_id, answers=False):
 
         if answers:
             sql2 = """SELECT a.message AS answer_body,
-                             a.id,
+                             a.id AS answer_id,
                              to_char(a.submission_time, 'YYYY-MM-DD HH24:MI') AS answer_date,
                              a.vote_number,
                              c.message AS comment_body,
                              to_char(c.submission_time, 'YYYY-MM-DD HH24:MI') AS comment_date,
-                             c.id as comment_id
+                             c.id AS comment_id,
+                             c.answer_id AS comment_answer_id
                       FROM answer a
                       LEFT OUTER JOIN comment c ON a.id = c.answer_id
                       WHERE a.question_id = %s
@@ -95,19 +96,16 @@ def new_q_a(info_dict, mode):
 def new_comment(info_dict):
     """dict keys are id and message, mode answer or question """
     with db.get_cursor() as cursor:
-        try:
-            if 'questionID' in info_dict:
-                sql = """INSERT INTO comment (question_id, message)
-                VALUES(%s, %s);"""
-            else:
-                sql = """INSERT INTO comment (answer_id, message)
-                VALUES(%s, %s);"""
-            data = (
-                info_dict['questionID'] if 'questionID' in info_dict else info_dict['answerID'],
-                info_dict['message'])
-            cursor.execute(sql, data)
-        except:
-            print('Something went wrong NEW comment')
+        if 'questionID' in list(info_dict.keys()):
+            sql = """INSERT INTO comment (question_id, message)
+                     VALUES(%s, %s);"""
+        else:
+            sql = """INSERT INTO comment (answer_id, message)
+                     VALUES(%s, %s);"""
+        data = (
+            info_dict['questionID'] if 'questionID' in list(info_dict.keys()) else info_dict['answerID'],
+            info_dict['message'])
+        cursor.execute(sql, data)
 
 
 def edit_comment(info_dict):
