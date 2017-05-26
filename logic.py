@@ -4,7 +4,12 @@ from datetime import datetime
 
 
 def single_question(question_id, answers=False):
-    """Returns a single question and corresponding anwers with comments in dict"""
+    """
+    Returns a single question and corresponding anwers with comments in dict \n
+        @param    question_id   int       The id of the question to be displayed \n
+        @param    answers       boolean   True if you need only the question, False if you need both  \n
+        @return                 dict      The result set of questions and answers   
+    """
     answer = None
     with db.get_cursor() as cursor:
         data = (question_id,)
@@ -46,6 +51,12 @@ def single_question(question_id, answers=False):
 
 
 def single_dict(id_to_get, mode):
+    """
+    Returns a dict by ID from DB  \n
+        @param    id_to_get   int       The id of the needed table \n
+        @param    mode        string    Which table  \n
+        @return               dict      Needed table in a dict
+    """
     with db.get_cursor() as cursor:
         try:
             if mode == 'answer':
@@ -63,7 +74,10 @@ def single_dict(id_to_get, mode):
 
 
 def all_questions():
-    """Returns all the questions list of dicts"""
+    """
+    Returns all the questions list of dicts \n
+        @return     dict
+    """
     with db.get_cursor() as cursor:
         sql = """SELECT id,
                         title,
@@ -79,7 +93,11 @@ def all_questions():
 
 
 def new_q_a(info_dict, mode):
-    """Reqs a dict, key is 'message' if mode is answer, else /mode is question/ 'title' and 'message'"""
+    """
+    Reqs a dict, key is 'message' if mode is answer, else /mode is question/ 'title' and 'message' \n
+        @param    info_dict   dict      Contains all data as a dict \n
+        @param    mode        string    Which table  \n
+    """
     with db.get_cursor() as cursor:
         try:
             if mode == "answer":
@@ -94,7 +112,10 @@ def new_q_a(info_dict, mode):
 
 
 def new_comment(info_dict):
-    """dict keys are id and message, mode answer or question """
+    """
+    Add new comment \n
+        @param    info_dict   dict      Contains all data as a dict \n
+    """
     with db.get_cursor() as cursor:
         if 'questionID' in list(info_dict.keys()):
             sql = """INSERT INTO comment (question_id, message)
@@ -109,7 +130,10 @@ def new_comment(info_dict):
 
 
 def edit_comment(info_dict):
-    """Reqs a dict, where keys are message and id"""
+    """
+    Edit new comment \n
+        @param    info_dict   dict      Contains all data as a dict \n
+    """
     with db.get_cursor() as cursor:
         try:
             cursor.execute("""SELECT edited_count FROM comment WHERE id = %s""" % info_dict['commentID'])
@@ -126,22 +150,30 @@ def edit_comment(info_dict):
 
 
 def edit_q_a(info_dict, mode=None):
-    """Updates a question or answer. the mode can be question or answer. Requires a dictionary. keys: message and id"""
+    """
+    Updates a question or answer. \n
+        @param    info_dict   dict      Contains all data as a dict \n
+        @param    mode        string    Which table to update \n
+    """
     with db.get_cursor() as cursor:
         try:
             if mode == 'answer':
                 sql = """UPDATE answer SET message = %s WHERE id = %s;"""
-                data = (info_dict['message'], info_dict[mode+'ID'])
+                data = (info_dict['message'], info_dict[mode + 'ID'])
             else:
                 sql = """UPDATE question SET message = %s, title = %s WHERE id = %s;"""
-                data = (info_dict['message'], info_dict['title'], info_dict[mode+'ID'])
+                data = (info_dict['message'], info_dict['title'], info_dict[mode + 'ID'])
             cursor.execute(sql, data)
         except:
             print("Something went wrong EDIT QA")
 
 
 def delete(id_for_delete, mode):
-    """Deletes a comment"""
+    """
+    Delet a question, answer or comment \n
+        @param    id_for_delete   dict      Contains all data as a dict \n
+        @param    mode            string    Which to delete: question, answer, comment \n
+    """
     with db.get_cursor() as cursor:
         try:
             if mode == "question":
@@ -157,7 +189,11 @@ def delete(id_for_delete, mode):
 
 
 def user_search(search_phrase):
-    """Returns search results for user query"""
+    """
+    Returns search results for user query \n
+        @param      search_phrase   string          Phrase providid by the user \n
+        @return                     list of dicts   Records that match the search phrase
+    """
     records = None
     with db.get_cursor() as cursor:
         data = {'phrase': search_phrase}
@@ -196,6 +232,13 @@ def user_search(search_phrase):
 
 
 def process_votes(id, questions=True, direction='up'):
+    """
+    Count number of votes of a given q/a \n
+        @param      id          int             The ID of the question or answer that will be voted for \n
+        @param      questions   boolean         If True modifies a question, otherwise an answer \n
+        @param      direction   string          If 'up' adds a vote, if 'down' substracts a vote \n
+        @return                 boolean         Status message: True if operation successful, otherwise False
+    """
     status = False
     if id:
         if direction not in ('up', 'down'):
@@ -220,6 +263,11 @@ def process_votes(id, questions=True, direction='up'):
 
 
 def get_question_by_answer_id(answer_id):
+    """
+    Get corresponding answer for given question id \n
+        @param      answer_id          int      Which answer you need the corresponding question id to \n
+        @return                        int      Get the corresponding question id         
+    """
     question_id = False
     if answer_id:
         with db.get_cursor() as cursor:
@@ -231,6 +279,11 @@ def get_question_by_answer_id(answer_id):
 
 
 def update_view_number(question_id):
+    """
+    Updates the view numbers if a question page is visited \n
+        @param      question_id        int        Id of the question needed to count\n
+        @return                        boolean    Status
+    """
     status = False
     if question_id:
         with db.get_cursor() as cursor:
