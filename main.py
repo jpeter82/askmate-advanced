@@ -96,6 +96,17 @@ def search_questions():
     return render_template('search.html', search_phrase=search_phrase, data=data)
 
 
+@app.route("/answer/<answer_id>/vote-<direction>")
+@app.route("/question/<question_id>/vote-<direction>")
+def vote(direction, question_id=None, answer_id=None):
+    if question_id:
+        logic.process_votes(question_id, questions=True, direction=direction)
+    elif answer_id:
+        logic.process_votes(answer_id, questions=False, direction=direction)
+        question_id = logic.get_question_by_answer_id(answer_id)['question_id']
+    return redirect(url_for('question', question_id=question_id))
+
+
 @app.errorhandler(404)
 def page_not_found(error):
     return 'Oops, page not found!', 404

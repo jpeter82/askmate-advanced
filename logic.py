@@ -193,3 +193,38 @@ def user_search(search_phrase):
         cursor.execute(sql, data)
         records = cursor.fetchall()
     return records
+
+
+def process_votes(id, questions=True, direction='up'):
+    status = False
+    if id:
+        if direction not in ('up', 'down'):
+            raise ValueError
+        with db.get_cursor() as cursor:
+            if questions is True:
+                if direction == 'up':
+                    sql = """UPDATE question SET vote_number = vote_number + 1 WHERE id = %s;"""
+                else:
+                    sql = """UPDATE question SET vote_number = vote_number - 1 WHERE id = %s;"""
+            elif questions is False:
+                if direction == 'up':
+                    sql = """UPDATE answer SET vote_number = vote_number + 1 WHERE id = %s;"""
+                else:
+                    sql = """UPDATE answer SET vote_number = vote_number - 1 WHERE id = %s;"""
+            else:
+                raise ValueError
+            data = (id,)
+            cursor.execute(sql, data)
+            status = True
+    return status
+
+
+def get_question_by_answer_id(answer_id):
+    question_id = False
+    if answer_id:
+        with db.get_cursor() as cursor:
+            sql = """SELECT question_id FROM answer WHERE id = %s;"""
+            data = (answer_id,)
+            cursor.execute(sql, data)
+            question_id = cursor.fetchone()
+    return question_id

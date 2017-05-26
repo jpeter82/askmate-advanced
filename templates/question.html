@@ -7,10 +7,10 @@
         <tr>
             <td>
                 <div>
-                    <span><a href="#">VOTE +</a></span>
+                    <span><a href="/question/{{ data['question'][0]['id'] }}/vote-up">VOTE +</a></span>
                 </div>
                 <div>
-                    <span><a href="#">VOTE -</a></span>
+                    <span><a href="/question/{{ data['question'][0]['id'] }}/vote-down">VOTE -</a></span>
                 </div>
             </td>
             <td>
@@ -68,10 +68,10 @@
             <tr>
                 <td>
                     <div>
-                        <span><a href="#">VOTE +</a></span>
+                        <span><a href="/answer/{{item['answer_id']}}/vote-up">VOTE +</a></span>
                     </div>
                     <div>
-                        <span><a href="#">VOTE -</a></span>
+                        <span><a href="/answer/{{item['answer_id']}}/vote-down">VOTE -</a></span>
                     </div>
                 </td>
                 <td>
