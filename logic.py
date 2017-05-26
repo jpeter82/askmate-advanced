@@ -172,7 +172,7 @@ def user_search(search_phrase):
                         NULL AS answer_date,
                         NULL AS answer_vote
                  FROM question q
-                 WHERE LOWER(q.title) LIKE CONCAT('%%', LOWER(%(phrase)s), '%%')
+                 WHERE LOWER(q.title) LIKE CONCAT('%%', LOWER(%(phrase)s), '%%') OR LOWER(q.message) LIKE CONCAT('%%', LOWER(%(phrase)s), '%%')
 
                  UNION ALL
 
