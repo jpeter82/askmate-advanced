@@ -228,3 +228,14 @@ def get_question_by_answer_id(answer_id):
             cursor.execute(sql, data)
             question_id = cursor.fetchone()
     return question_id
+
+
+def update_view_number(question_id):
+    status = False
+    if question_id:
+        with db.get_cursor() as cursor:
+            sql = """UPDATE question SET view_number = view_number + 1 WHERE id = %s;"""
+            data = (question_id,)
+            cursor.execute(sql, data)
+            status = True
+    return status

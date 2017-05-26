@@ -28,6 +28,10 @@ def index():
 
 @app.route('/question/<int:question_id>')
 def question(question_id):
+    try:
+        logic.update_view_number(question_id)
+    except IndexError:
+        pass
     return render_template("question.html", data=logic.single_question(question_id, answers=True))
 
 
