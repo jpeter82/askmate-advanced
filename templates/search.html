@@ -1,24 +1,17 @@
-{% extends "base.html" %}
-{% block title %} - {% if question %} Edit {% else -%} Add new {% endif %} Record{% endblock %}
-
-{% block content %}
-{% set last_question = [] %}
-<div>
-    <h1>Search results for {{ search_phrase }}:</h1>
+{% extends "base.html" %} {% block title %} - {% if question %} Edit {% else -%} Add new {% endif %} Record{% endblock %}
+{% block content %} {% set last_question = [] %}
+<div class="container">
+    <h1 class="title-text-question">Search results for {{ search_phrase }}:</h1>
 </div>
 
-<div>
-    {% for record in data %}
-        {% if record['question_id'] not in last_question %}
-            <h3>{{ record['title']|safe }}</h3>
-            <div>
-                {{ record['question_body']|safe }}
-            </div>
-        {% endif %}
-        {% if record['answer_body'] %}
-            <div>{{ record['answer_body']|safe }}</div>
-        {% endif %}
-        {% do last_question.append(record['question_id']) %}
-    {% endfor %}
+<div class="container">
+    {% for record in data %} {% if record['question_id'] not in last_question %}
+    <h3>{{ record['title']|safe }}</h3>
+    <div>
+        {{ record['question_body']|safe }}
+    </div>
+    {% endif %} {% if record['answer_body'] %}
+    <div class="ans-body">{{ record['answer_body']|safe }}</div>
+    {% endif %} {% do last_question.append(record['question_id']) %} {% endfor %}
 </div>
 {%- endblock content %}

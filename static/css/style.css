@@ -1,0 +1,285 @@
+/*-----------------------------------*\
+  1 - MAIN
+  2 - TABLE
+  3 - FORMS + BUTTONS
+  4 - MEDIA QUERIES
+  5 - KEYFRAMES
+\*-----------------------------------*/
+
+/*-----------------------------------*\
+	1 - MAIN
+\*-----------------------------------*/
+
+
+body {
+  background-color: #d84047;
+}
+
+body {
+    font-family: 'Open Sans', sans-serif;
+}
+
+img.logo {
+    max-width: 100px;
+    height: auto;
+    display: block;
+    position: absolute;
+    right: 0;
+}
+.askmate {
+  color: #000;
+  font-size: 75px;
+  font-weight: 400;
+  font-style: normal;
+  font-family: 'VT323', monospace;
+  text-transform: uppercase;
+  text-align: center;
+  cursor: default;
+  margin: 0;
+  letter-spacing: 3px;
+  text-align: center;
+}
+.title-text-question {
+    font-family: 'VT323', monospace;
+    font-size: 50px !important;
+    letter-spacing: 3px !important;
+}
+
+.askmate-desc {
+    text-align: center;
+    font-style: italic;
+    color: #000;
+}
+
+#create-question {
+    text-align: center;
+}
+
+.no-questions {
+    text-align: center
+}
+
+.open-question {
+    text-decoration:none;
+    color: #000;
+
+}
+.open-question:hover {
+    text-decoration:none;
+    color: #000;
+
+}
+
+#questions-table tr td:nth-child(1),
+#questions-table tr td:nth-child(2),
+#questions-table tr td:nth-child(3),
+#questions-table tr td:nth-child(4),
+#questions-table tr td:nth-child(7),
+#questions-table tr td:nth-child(8) {
+    text-align: center;
+}
+
+.input-group.search {
+    position: fixed;
+    left: 0;
+    top: 0;
+    padding: 10px;
+    margin: 10px;
+}
+.search .form-control {
+    margin-bottom: 10px;
+}
+
+.add-ans {
+    float: right;
+    margin: 10px 0;
+}
+.special-format {
+    font-weight: bold;
+    font-size: 16px;
+    color: white;
+}
+.ans-body {
+    padding-left: 50px;
+    padding-top: 10px;
+}
+.ans-body::before {
+    content: "Comment: "
+}
+/*-----------------------------------*\
+	1 - TABLE
+\*-----------------------------------*/
+.table-form {
+    width: 100%;
+    box-shadow: 3px 3px 3px;
+
+}
+table td {
+    word-wrap: break-word;
+}
+.table-div table td {
+    max-width: 200px !important;
+}  
+.table-form td {
+    border: 1px solid salmon;
+    text-align: center;
+    padding: 20px 15px;
+}
+.glyphicon {
+    padding: 0 5px;
+}
+span.glyphicon.glyphicon-pencil {
+    padding-left: 25px;
+}
+
+#body-index span.glyphicon.glyphicon-pencil {
+    padding-left: 0px;
+}
+table {
+    background: #fff;
+}
+
+#questions-table tr:hover {
+    background-color: lightcoral;
+    transparent: 0.7;
+}
+
+#questions-table tr:hover td {
+    background-color: transparent; /* or #000 */
+}
+
+#questions-table {
+    border: 3px solid brown;
+    margin-top: 10px;
+}
+#questions-table {
+    word-wrap: break-word;
+}
+
+#questions-table td {
+    max-width: 300px;
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) {
+    background-color: #ececec;
+}
+td {
+    vertical-align: middle
+}
+thead th {
+    background: firebrick;
+    color: white;
+}
+.arrows {
+    float: left;
+    max-width: 25px;
+}
+
+.arrows a {
+    padding: 0 10px;
+    font-size: 20px;
+}
+
+.arrows .glyphicon-chevron-up {
+    color: green
+}
+.arrows .glyphicon-chevron-up:hover {
+    color: lightgreen
+}
+
+span.vote-num {
+    color: red;
+    font-size: 18px;
+}
+/*-----------------------------------*\
+	1 - FORMS + BUTTONS
+\*-----------------------------------*/
+
+#delete_button,
+#edit_button {
+    font-size: 20px;
+    font-family: FontAwesome;
+}
+
+#body-form input, #body-form textarea, #body-form button {
+    margin: 10px 0;
+}
+
+.glyphicon {
+    color: firebrick;
+}
+
+.glyphicon:hover {
+    color: red
+}
+
+.btn:hover,
+.glyphicon:hover {
+  -webkit-animation: swing 1s ease;
+  animation: swing 1s ease;
+  -webkit-animation-iteration-count: 1;
+  animation-iteration-count: 1;
+}
+/*-----------------------------------*\
+	1 - MEDIA QUERIES
+\*-----------------------------------*/
+
+
+
+/*-----------------------------------*\
+	4 - Keyframes
+\*-----------------------------------*/
+
+/*Keyframe for SWING effect*/
+@-webkit-keyframes swing{
+    15%    {
+        -webkit-transform: translateX(5px);
+        transform: translateX(5px);
+    }
+    30%    {
+        -webkit-transform: translateX(-5px);
+       transform: translateX(-5px);
+    } 
+    50%    {
+        -webkit-transform: translateX(3px);
+        transform: translateX(3px);
+    }
+    65%    {
+        -webkit-transform: translateX(-3px);
+        transform: translateX(-3px);
+    }
+    80%    {
+        -webkit-transform: translateX(2px);
+        transform: translateX(2px);
+    }
+    100%    {
+        -webkit-transform: translateX(0);
+        transform: translateX(0);
+    }
+}
+@keyframes swing{
+    15%    {
+        -webkit-transform: translateX(5px);
+        transform: translateX(5px);
+    }
+    30%    {
+        -webkit-transform: translateX(-5px);
+        transform: translateX(-5px);
+    }
+    50%    {
+        -webkit-transform: translateX(3px);
+        transform: translateX(3px);
+    }
+    65%    {
+        -webkit-transform: translateX(-3px);
+        transform: translateX(-3px);
+    }
+    80%    {
+        -webkit-transform: translateX(2px);
+        transform: translateX(2px);
+    }
+    100%    {
+        -webkit-transform: translateX(0);
+        transform: translateX(0);
+    }
+}

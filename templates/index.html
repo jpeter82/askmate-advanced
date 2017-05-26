@@ -1,61 +1,54 @@
-{% extends "base.html" %}
-{% block title %} - {% if question %} Edit {% else -%} Add new {% endif %} Record{% endblock %}
-
+{% extends "base.html" %} {% block title %} - {% if question %} Edit {% else -%} Add new {% endif %} Record{% endblock %}
 {% block content %}
-<div>
-    <div>
-        <div>
-            <h1>AskMate</h1>
-            <p>AskMate is a crowdsourced Q&#38;A site where peaople can easily ask and answer to help each other.</p>
-            <a href="/new-question">Ask new Question!</a>
-            <br />
-            <h2>Questions</h2>
-            {% if display %}
-            <div>
-                <div>
-                    <form action="{{ url_for('search_questions') }}">
-                        <input type="text" name="q" autofocus />
-                        <input type="submit" />
-                    </form>
-                </div>
-                <div>
-                    <table>
-                        <thead>
-                            <th>Submisson Time</th>
-                            <th>View Number</th>
-                            <th>Vote Number</th>
-                            <th>Title</th>
-                            <th>Message</th>
-                            <th>Edit</th>
-                            <th>Delete</th>
-                        </thead>
-                        <tbody>
-                            {% for question in display %}
-                            <tr>
-                                <td>{{ question['submission_time'] }}</td>
-                                <td>{{ question['view_number'] }}</td>
-                                <td>{{ question['vote_number'] }}</td>
-                                <td><a href="/question/{{ question['id'] }}">{{ question['title'] }}</a></td>
-                                <td><a href="/question/{{ question['id'] }}">{{ question['message'] }}</a></td>
-                                <td>
-                                    <a href="/question/{{ question['id'] }}/edit">EDIT</a>
-                                </td>
-                                <td>
-                                    <a href="/question/{{ question['id'] }}/delete">DELETE</a>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            {% else %}
-            <div>
-                <h2>No questions to display.</h2>
-            </div>
-            {% endif %}
-        </div>
+<div id="body-index" class="container">
+    <h1 class="askmate">AskMate</h1>
+    <p class="askmate-desc">AskMate is a crowdsourced Q&#38;A site where peaople can easily ask and answer to help each other.</p>
+    <a href="/new-question" id="create-question-button" class="btn btn-success">Ask new Question!</a>
+    <br />
+    <h2 class="title-text-question">Questions</h2>
+    {% if display %}
+    <div class="input-group search">
+        <form action="{{ url_for('search_questions') }}">
+            <input type="text" name="q" autofocus class="form-control" placeholder="Search for..." />
+            <input type="submit" class="btn btn-success" />
+        </form>
     </div>
+    <div>
+        <table id="questions-table" class="table table-bordred table-striped table-responsive">
+            <thead>
+                <th>Submisson Time</th>
+                <th>View Number</th>
+                <th>Vote Number</th>
+                <th>Title</th>
+                <th>Message</th>
+                <th>Edit</th>
+                <th>Delete</th>
+            </thead>
+            <tbody>
+                {% for question in display %}
+                <tr>
+                    <td>{{ question['submission_time'] }}</td>
+                    <td>{{ question['view_number'] }}</td>
+                    <td>{{ question['vote_number'] }}</td>
+                    <td><a href="/question/{{ question['id'] }}" class="open-question">{{ question['title'] }}</a></td>
+                    <td><a href="/question/{{ question['id'] }}" class="open-question">{{ question['message'] }}</a></td>
+                    <td>
+                        <a href="/question/{{ question['id'] }}/edit"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></a>
+                    </td>
+                    <td>
+                        <a href="/question/{{ question['id'] }}/delete"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="no-questions">
+        <h2>Don't have any question to display.</h2>
+        <h3> Press the 'Ask a new question!' button above to add a question!</h3>
+    </div>
+    {% endif %}
 </div>
 
 {%- endblock content %}
