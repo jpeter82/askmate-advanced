@@ -21,11 +21,11 @@ DROP SEQUENCE IF EXISTS public.question_id_seq;
 CREATE TABLE question (
     id serial NOT NULL,
     submission_time timestamp without time zone default date_trunc('second', now()),
-    view_number integer,
-    vote_number integer,
+    view_number integer default 0,
+    vote_number integer default 0,
     title text,
     message text,
-    image text
+    image text default NULL
 );
 
 DROP TABLE IF EXISTS public.answer;
@@ -33,21 +33,21 @@ DROP SEQUENCE IF EXISTS public.answer_id_seq;
 CREATE TABLE answer (
     id serial NOT NULL,
     submission_time timestamp without time zone default date_trunc('second', now()),
-    vote_number integer,
-    question_id integer,
+    vote_number integer default 0,
+    question_id integer default 0,
     message text,
-    image text
+    image text default NULL
 );
 
 DROP TABLE IF EXISTS public.comment;
 DROP SEQUENCE IF EXISTS public.comment_id_seq;
 CREATE TABLE comment (
     id serial NOT NULL,
-    question_id integer,
-    answer_id integer,
+    question_id integer default NULL,
+    answer_id integer default NULL,
     message text,
     submission_time timestamp without time zone default date_trunc('second', now()),
-    edited_count integer
+    edited_count integer default 0
 );
 
 
