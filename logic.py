@@ -8,7 +8,7 @@ def single_question(question_id, answers=False):
     Returns a single question and corresponding anwers with comments in dict \n
         @param    question_id   int       The id of the question to be displayed \n
         @param    answers       boolean   True if you need only the question, False if you need both  \n
-        @return                 dict      The result set of questions and answers   
+        @return                 dict      The result set of questions and answers
     """
     answer = None
     with db.get_cursor() as cursor:
@@ -198,8 +198,10 @@ def user_search(search_phrase):
     with db.get_cursor() as cursor:
         data = {'phrase': search_phrase}
         sql = """SELECT q.id AS question_id,
-                        REPLACE(q.title, %(phrase)s, CONCAT('<span class="special-format">', %(phrase)s, '</span>')) AS title,
-                        REPLACE(q.message, %(phrase)s, CONCAT('<span class="special-format">', %(phrase)s, '</span>')) AS question_body,
+                        REPLACE(q.title, %(phrase)s, CONCAT('<span class="special-format">',
+                                                                                %(phrase)s, '</span>')) AS title,
+                        REPLACE(q.message, %(phrase)s, CONCAT('<span class="special-format">', %(phrase)s, '</span>'))
+                        AS question_body,
                         q.view_number,
                         q.vote_number AS question_vote,
                         to_char(q.submission_time, 'YYYY-MM-DD HH24:MI') AS submission_time,
@@ -208,18 +210,21 @@ def user_search(search_phrase):
                         NULL AS answer_date,
                         NULL AS answer_vote
                  FROM question q
-                 WHERE LOWER(q.title) LIKE CONCAT('%%', LOWER(%(phrase)s), '%%') OR LOWER(q.message) LIKE CONCAT('%%', LOWER(%(phrase)s), '%%')
+                 WHERE LOWER(q.title) LIKE CONCAT('%%', LOWER(%(phrase)s), '%%')
+                                                        OR LOWER(q.message) LIKE CONCAT('%%', LOWER(%(phrase)s), '%%')
 
                  UNION ALL
 
                  SELECT q.id AS question_id,
-                        REPLACE(q.title, %(phrase)s, CONCAT('<span class="special-format">', %(phrase)s, '</span>')) AS title,
+                        REPLACE(q.title, %(phrase)s, CONCAT('<span class="special-format">',
+                                                                                %(phrase)s, '</span>')) AS title,
                         q.message AS question_body,
                         q.view_number,
                         q.vote_number AS question_vote,
                         to_char(q.submission_time, 'YYYY-MM-DD HH24:MI') AS submission_time,
                         a.id AS answer_id,
-                        REPLACE(a.message, %(phrase)s, CONCAT('<span class="special-format">', %(phrase)s, '</span>')) AS answer_body,
+                        REPLACE(a.message, %(phrase)s, CONCAT('<span class="special-format">',
+                                                                                %(phrase)s, '</span>')) AS answer_body,
                         to_char(a.submission_time, 'YYYY-MM-DD HH24:MI') AS answer_date,
                         a.vote_number AS answer_vote
                  FROM question q
@@ -266,7 +271,7 @@ def get_question_by_answer_id(answer_id):
     """
     Get corresponding answer for given question id \n
         @param      answer_id          int      Which answer you need the corresponding question id to \n
-        @return                        int      Get the corresponding question id         
+        @return                        int      Get the corresponding question id
     """
     question_id = False
     if answer_id:
