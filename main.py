@@ -18,7 +18,6 @@ def index():
         link = logic.generate_links(logic.url_helper(request.url))
         questions = logic.get_questions(logic.url_helper(request.url))
     if request.method == "POST":
-        print('yes')
         user_name = request.form['register']
         logic.new_user(user_name)
     return render_template('index.html', questions=questions, five=five, link=link)
