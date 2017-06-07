@@ -26,5 +26,11 @@ def get_cursor():
     finally:
         DB.putconn(conn)
 
-if __name__ == '__main__':
-    pass
+
+def perform_query(sql, data=None):
+    records = None
+    if sql:
+        with get_cursor() as cursor:
+            cursor.execute(sql, data)
+            records = cursor.fetchall()
+    return records

@@ -1,191 +1,34 @@
-from psycopg2 import connect, extras
 import db
-from datetime import datetime
 
 
-def single_question(question_id, answers=False):
+def get_questions(sort_order, five=False):
     """
-    Returns a single question and corresponding anwers with comments in dict \n
-        @param    question_id   int       The id of the question to be displayed \n
-        @param    answers       boolean   True if you need only the question, False if you need both  \n
-        @return                 dict      The result set of questions and answers
+    Returns all the questions.
+        @param     sort_order    string     The request path
+        @param     five          bool       True if you want only 5 questions, otherwise False
+        @return                  list       List of dictionaries for each question.
     """
-    answer = None
-    with db.get_cursor() as cursor:
-        data = (question_id,)
+    sql = """SELECT id,
+                    title,
+                    message,
+                    view_number,
+                    vote_number,
+                    to_char(submission_time, 'YYYY-MM-DD HH24:MI') AS submission_time
+             FROM question"""
 
-        sql = """SELECT q.title,
-                        q.message AS question_body,
-                        q.id,
-                        to_char(q.submission_time, 'YYYY-MM-DD HH24:MI') AS question_date,
-                        q.view_number,
-                        q.vote_number,
-                        c.message AS comment_body,
-                        to_char(c.submission_time, 'YYYY-MM-DD HH24:MI') AS comment_date,
-                        c.id as comment_id
-                 FROM question q
-                 LEFT OUTER JOIN comment c ON q.id = c.question_id
-                 WHERE q.id = %s
-                 ORDER BY c.submission_time DESC;"""
-        cursor.execute(sql, data)
-        question = cursor.fetchall()
+    if sort_order:
+        fields = {'time': 'submission_time', 'view': 'view_number', 'vote': 'vote_number',
+                  'title': 'title', 'message': 'message'}
+        order_by = ', '.join(fields[item[0]] + ' ' + item[1] for item in sort_order)
+        sql = sql + """ ORDER BY """ + order_by
+    else:
+        sql = sql + """ ORDER BY submission_time DESC"""
 
-        if answers:
-            sql2 = """SELECT a.message AS answer_body,
-                             a.id AS answer_id,
-                             to_char(a.submission_time, 'YYYY-MM-DD HH24:MI') AS answer_date,
-                             a.vote_number,
-                             c.message AS comment_body,
-                             to_char(c.submission_time, 'YYYY-MM-DD HH24:MI') AS comment_date,
-                             c.id AS comment_id,
-                             c.answer_id AS comment_answer_id
-                      FROM answer a
-                      LEFT OUTER JOIN comment c ON a.id = c.answer_id
-                      WHERE a.question_id = %s
-                      ORDER BY a.vote_number DESC, a.submission_time DESC, c.submission_time DESC;"""
-            cursor.execute(sql2, data)
-            answer = cursor.fetchall()
+    if five:
+        sql = sql + """ LIMIT 5"""
 
-        result = {'question': question, 'answer': answer}
-        return result
-
-
-def single_dict(id_to_get, mode):
-    """
-    Returns a dict by ID from DB  \n
-        @param    id_to_get   int       The id of the needed table \n
-        @param    mode        string    Which table  \n
-        @return               dict      Needed table in a dict
-    """
-    with db.get_cursor() as cursor:
-        try:
-            if mode == 'answer':
-                sql = """SELECT * FROM answer WHERE id = %s;"""
-            elif mode == 'question':
-                sql = """SELECT * FROM question WHERE id = %s;"""
-            else:
-                sql = """SELECT * FROM comment WHERE id = %s;"""
-            data = (id_to_get,)
-            cursor.execute(sql, data)
-            result = cursor.fetchone()
-            return result
-        except:
-            print("Something went wrong: SINGLE answer")
-
-
-def all_questions():
-    """
-    Returns all the questions list of dicts \n
-        @return     dict
-    """
-    with db.get_cursor() as cursor:
-        sql = """SELECT id,
-                        title,
-                        message,
-                        view_number,
-                        vote_number,
-                        to_char(submission_time, 'YYYY-MM-DD HH24:MI') AS submission_time
-                 FROM question
-                 ORDER BY submission_time DESC"""
-        cursor.execute(sql)
-        questions = cursor.fetchall()
+    questions = db.perform_query(sql)
     return questions
-
-
-def new_q_a(info_dict, mode):
-    """
-    Reqs a dict, key is 'message' if mode is answer, else /mode is question/ 'title' and 'message' \n
-        @param    info_dict   dict      Contains all data as a dict \n
-        @param    mode        string    Which table  \n
-    """
-    with db.get_cursor() as cursor:
-        try:
-            if mode == "answer":
-                sql = """INSERT INTO answer (message, question_id) VALUES(%s, %s);"""
-                data = (info_dict['message'], info_dict['questionID'])
-            elif mode == "question":
-                sql = """INSERT INTO question (title, message) VALUES(%s, %s);"""
-                data = (info_dict['title'], info_dict['message'])
-            cursor.execute(sql, data)
-        except:
-            print("Something went wrong: newQA")
-
-
-def new_comment(info_dict):
-    """
-    Add new comment \n
-        @param    info_dict   dict      Contains all data as a dict \n
-    """
-    with db.get_cursor() as cursor:
-        if 'questionID' in list(info_dict.keys()):
-            sql = """INSERT INTO comment (question_id, message)
-                     VALUES(%s, %s);"""
-        else:
-            sql = """INSERT INTO comment (answer_id, message)
-                     VALUES(%s, %s);"""
-        data = (
-            info_dict['questionID'] if 'questionID' in list(info_dict.keys()) else info_dict['answerID'],
-            info_dict['message'])
-        cursor.execute(sql, data)
-
-
-def edit_comment(info_dict):
-    """
-    Edit new comment \n
-        @param    info_dict   dict      Contains all data as a dict \n
-    """
-    with db.get_cursor() as cursor:
-        try:
-            cursor.execute("""SELECT edited_count FROM comment WHERE id = %s""" % info_dict['commentID'])
-            result = cursor.fetchone()
-            if result['edited_count'] is None:
-                result = 1
-            else:
-                result = result['edited_count'] + 1
-            sql = """UPDATE comment SET message = %s, edited_count = %s WHERE id = %s;"""
-            data = (info_dict['message'], result, info_dict['commentID'])
-            cursor.execute(sql, data)
-        except:
-            print("Something went wrong EDIT COMMENT")
-
-
-def edit_q_a(info_dict, mode=None):
-    """
-    Updates a question or answer. \n
-        @param    info_dict   dict      Contains all data as a dict \n
-        @param    mode        string    Which table to update \n
-    """
-    with db.get_cursor() as cursor:
-        try:
-            if mode == 'answer':
-                sql = """UPDATE answer SET message = %s WHERE id = %s;"""
-                data = (info_dict['message'], info_dict[mode + 'ID'])
-            else:
-                sql = """UPDATE question SET message = %s, title = %s WHERE id = %s;"""
-                data = (info_dict['message'], info_dict['title'], info_dict[mode + 'ID'])
-            cursor.execute(sql, data)
-        except:
-            print("Something went wrong EDIT QA")
-
-
-def delete(id_for_delete, mode):
-    """
-    Delet a question, answer or comment \n
-        @param    id_for_delete   dict      Contains all data as a dict \n
-        @param    mode            string    Which to delete: question, answer, comment \n
-    """
-    with db.get_cursor() as cursor:
-        try:
-            if mode == "question":
-                sql = """DELETE FROM question WHERE id = %s;"""
-            elif mode == 'answer':
-                sql = """DELETE FROM answer WHERE id = %s;"""
-            elif mode == 'comment':
-                sql = """DELETE FROM comment WHERE id = %s;"""
-            data = (id_for_delete,)
-            cursor.execute(sql, data)
-        except:
-            print("Something went wrong DELETE")
 
 
 def user_search(search_phrase):
@@ -194,106 +37,88 @@ def user_search(search_phrase):
         @param      search_phrase   string          Phrase providid by the user \n
         @return                     list of dicts   Records that match the search phrase
     """
-    records = None
-    with db.get_cursor() as cursor:
-        data = {'phrase': search_phrase}
-        sql = """SELECT q.id AS question_id,
-                        REPLACE(q.title, %(phrase)s, CONCAT('<span class="special-format">',
-                                                                                %(phrase)s, '</span>')) AS title,
-                        REPLACE(q.message, %(phrase)s, CONCAT('<span class="special-format">', %(phrase)s, '</span>'))
-                        AS question_body,
-                        q.view_number,
-                        q.vote_number AS question_vote,
-                        to_char(q.submission_time, 'YYYY-MM-DD HH24:MI') AS submission_time,
-                        NULL AS answer_id,
-                        NULL AS answer_body,
-                        NULL AS answer_date,
-                        NULL AS answer_vote
-                 FROM question q
-                 WHERE LOWER(q.title) LIKE CONCAT('%%', LOWER(%(phrase)s), '%%')
-                                                        OR LOWER(q.message) LIKE CONCAT('%%', LOWER(%(phrase)s), '%%')
+    data = {'phrase': search_phrase}
+    sql = """SELECT q.id AS question_id,
+                    REPLACE(q.title, %(phrase)s, CONCAT('<span class="special-format">',
+                                                                            %(phrase)s, '</span>')) AS title,
+                    REPLACE(q.message, %(phrase)s, CONCAT('<span class="special-format">', %(phrase)s, '</span>'))
+                    AS question_body,
+                    q.view_number,
+                    q.vote_number AS question_vote,
+                    to_char(q.submission_time, 'YYYY-MM-DD HH24:MI') AS submission_time,
+                    NULL AS answer_id,
+                    NULL AS answer_body,
+                    NULL AS answer_date,
+                    NULL AS answer_vote
+                FROM question q
+                WHERE q.title ILIKE CONCAT('%%', %(phrase)s, '%%') OR q.message ILIKE CONCAT('%%', %(phrase)s, '%%')
 
-                 UNION ALL
+                UNION ALL
 
-                 SELECT q.id AS question_id,
-                        REPLACE(q.title, %(phrase)s, CONCAT('<span class="special-format">',
-                                                                                %(phrase)s, '</span>')) AS title,
-                        q.message AS question_body,
-                        q.view_number,
-                        q.vote_number AS question_vote,
-                        to_char(q.submission_time, 'YYYY-MM-DD HH24:MI') AS submission_time,
-                        a.id AS answer_id,
-                        REPLACE(a.message, %(phrase)s, CONCAT('<span class="special-format">',
-                                                                                %(phrase)s, '</span>')) AS answer_body,
-                        to_char(a.submission_time, 'YYYY-MM-DD HH24:MI') AS answer_date,
-                        a.vote_number AS answer_vote
-                 FROM question q
-                 LEFT OUTER JOIN answer a ON q.id = a.question_id
-                 WHERE LOWER(a.message) LIKE CONCAT('%%', LOWER(%(phrase)s), '%%')
-                 ORDER BY question_id DESC, answer_id DESC;"""
-        cursor.execute(sql, data)
-        records = cursor.fetchall()
+                SELECT q.id AS question_id,
+                    REPLACE(q.title, %(phrase)s, CONCAT('<span class="special-format">',
+                                                                            %(phrase)s, '</span>')) AS title,
+                    q.message AS question_body,
+                    q.view_number,
+                    q.vote_number AS question_vote,
+                    to_char(q.submission_time, 'YYYY-MM-DD HH24:MI') AS submission_time,
+                    a.id AS answer_id,
+                    REPLACE(a.message, %(phrase)s, CONCAT('<span class="special-format">',
+                                                                            %(phrase)s, '</span>')) AS answer_body,
+                    to_char(a.submission_time, 'YYYY-MM-DD HH24:MI') AS answer_date,
+                    a.vote_number AS answer_vote
+                FROM question q
+                LEFT OUTER JOIN answer a ON q.id = a.question_id
+                WHERE a.message ILIKE CONCAT('%%', %(phrase)s, '%%')
+                ORDER BY question_id DESC, answer_id DESC;"""
+    records = db.perform_query(sql, data)
     return records
 
 
-def process_votes(id, questions=True, direction='up'):
-    """
-    Count number of votes of a given q/a \n
-        @param      id          int             The ID of the question or answer that will be voted for \n
-        @param      questions   boolean         If True modifies a question, otherwise an answer \n
-        @param      direction   string          If 'up' adds a vote, if 'down' substracts a vote \n
-        @return                 boolean         Status message: True if operation successful, otherwise False
-    """
-    status = False
-    if id:
-        if direction not in ('up', 'down'):
-            raise ValueError
-        with db.get_cursor() as cursor:
-            if questions is True:
-                if direction == 'up':
-                    sql = """UPDATE question SET vote_number = vote_number + 1 WHERE id = %s;"""
+def generate_links(sort_order):
+    '''
+    Generate links for ordering the table for all 5 columns.
+        @param    sort_order    list      List of tuples containing the request path parameters
+        @return                 list      List of tuples containing the links as (column, order)
+    '''
+    links = {}
+    columns = ('time', 'view', 'vote', 'title', 'message')
+
+    if sort_order:
+        sorted_columns = [item[0] for item in sort_order]
+
+        for column in columns:
+            if len(sort_order) == 1:
+                if column in sorted_columns:
+                    links[column] = '{}={}'.format(column, 'asc' if sort_order[0][1] == 'desc' else 'desc')
                 else:
-                    sql = """UPDATE question SET vote_number = vote_number - 1 WHERE id = %s;"""
-            elif questions is False:
-                if direction == 'up':
-                    sql = """UPDATE answer SET vote_number = vote_number + 1 WHERE id = %s;"""
-                else:
-                    sql = """UPDATE answer SET vote_number = vote_number - 1 WHERE id = %s;"""
+                    links[column] = '{}={}&{}=asc'.format(sort_order[0][0], sort_order[0][1], column)
             else:
-                raise ValueError
-            data = (id,)
-            cursor.execute(sql, data)
-            status = True
-    return status
+                if column in sorted_columns:
+                    filtered_sort_order = [item for item in sort_order if column != item[0]]
+                    request_params = '&'.join(list(map(lambda x: '='.join(x), filtered_sort_order)))
+                    column_order = [item for item in sort_order if column == item[0]][0][1]
+                    links[column] = request_params + '&{}={}'.format(column,
+                                                                     'asc' if column_order == 'desc' else 'desc')
+                else:
+                    request_params = '&'.join(list(map(lambda x: '='.join(x), sort_order)))
+                    links[column] = request_params + '&{}=asc'.format(column)
+    else:
+        for column in columns:
+            links[column] = '{}=asc'.format(column)
+    return links
 
 
-def get_question_by_answer_id(answer_id):
-    """
-    Get corresponding answer for given question id \n
-        @param      answer_id          int      Which answer you need the corresponding question id to \n
-        @return                        int      Get the corresponding question id
-    """
-    question_id = False
-    if answer_id:
-        with db.get_cursor() as cursor:
-            sql = """SELECT question_id FROM answer WHERE id = %s;"""
-            data = (answer_id,)
-            cursor.execute(sql, data)
-            question_id = cursor.fetchone()
-    return question_id
-
-
-def update_view_number(question_id):
-    """
-    Updates the view numbers if a question page is visited \n
-        @param      question_id        int        Id of the question needed to count\n
-        @return                        boolean    Status
-    """
-    status = False
-    if question_id:
-        with db.get_cursor() as cursor:
-            sql = """UPDATE question SET view_number = view_number + 1 WHERE id = %s;"""
-            data = (question_id,)
-            cursor.execute(sql, data)
-            status = True
-    return status
+def url_helper(url):
+    '''
+    Convert URL parameters to list of tuples
+        @param    url    string    The request URL
+        @return          list      List of tuples, i.e (column, order)
+    '''
+    params_start = url.find('?')
+    if params_start == -1:
+        params = False
+    else:
+        params = url[params_start + 1:].split('&')
+        params = list(map(lambda x: tuple(x.split('=')), params))
+    return params
