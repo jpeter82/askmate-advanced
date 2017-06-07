@@ -122,3 +122,13 @@ def url_helper(url):
         params = url[params_start + 1:].split('&')
         params = list(map(lambda x: tuple(x.split('=')), params))
     return params
+
+
+def new_user(username):
+    """
+    Insert the new user into the users table
+        @username is the chosen name by the user    string
+    """
+    sql = """INSERT INTO users (user_name) VALUES (%s) RETURNING id;"""
+    data = (username,)
+    return db.perform_query(sql, data)
