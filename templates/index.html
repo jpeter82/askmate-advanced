@@ -1,42 +1,53 @@
-{% extends "base.html" %} {% block title %} - {% if question %} Edit {% else -%} Add new {% endif %} Record{% endblock %}
+{% extends "base.html" %}
+{% block title %} - {% if question %} Edit {% else -%} Add new {% endif %} Record{% endblock %}
 {% block content %}
-<div id="body-index" class="container">
-    <h1 class="askmate">AskMate</h1>
-    <p class="askmate-desc">AskMate is a crowdsourced Q&#38;A site where peaople can easily ask and answer to help each other.</p>
-    <a href="/new-question" id="create-question-button" class="btn btn-success">Ask new Question!</a>
+<div>
+    <h1>AskMate</h1>
+    <p>AskMate is a crowdsourced Q&#38;A site where peaople can easily ask and answer to help each other.</p>
+    <a href="/new-question">Ask new Question!</a>
     <br />
-    <h2 class="title-text-question">Questions</h2>
-    {% if display %}
-    <div class="input-group search">
+    {% if five %}
+    <span><a href="/list">Click here to see more questions</a></span>
+    <br />
+    {% endif %}
+    <h2>Questions</h2>
+    {% if questions %}
+    <div>
         <form action="{{ url_for('search_questions') }}">
-            <input type="text" name="q" autofocus class="form-control" placeholder="Search for..." />
-            <input type="submit" class="btn btn-success" value="Gimme' results!" />
+            <input type="text" name="q" autofocus />
+            <input type="submit" value="Search" />
         </form>
     </div>
     <div>
-        <table id="questions-table" class="table table-bordred table-striped table-responsive">
+    {% if not five %}
+    <br />
+    <span><a href="/list">Reset column order</a></span>
+    {% endif %}
+    </div>
+    <div>
+        <table id="questions-table">
             <thead>
-                <th>Submisson Time</th>
-                <th>View Number</th>
-                <th>Vote Number</th>
-                <th>Title</th>
-                <th>Message</th>
+                <th>{% if five %} Submission Time {% else %} <a href="/list?{{ link.time }}">Submisson Time</a> {% endif %}</th>
+                <th>{% if five %} View Number {% else %} <a href="/list?{{ link.view }}">View Number</a> {% endif %}</th>
+                <th>{% if five %} Vote Number {% else %} <a href="/list?{{ link.vote }}">Vote Number</a> {% endif %}</th>
+                <th>{% if five %} Title {% else %} <a href="/list?{{ link.title }}">Title</a> {% endif %}</th>
+                <th>{% if five %} Message {% else %} <a href="/list?{{ link.message }}">Message</a> {% endif %}</th>
                 <th>Edit</th>
                 <th>Delete</th>
             </thead>
             <tbody>
-                {% for question in display %}
+                {% for question in questions %}
                 <tr>
-                    <td>{{ question['submission_time'] }}</td>
-                    <td>{{ question['view_number'] }}</td>
-                    <td>{{ question['vote_number'] }}</td>
-                    <td><a href="/question/{{ question['id'] }}" class="open-question">{{ question['title'] }}</a></td>
-                    <td><a href="/question/{{ question['id'] }}" class="open-question">{{ question['message'] }}</a></td>
+                    <td>{{ question.submission_time }}</td>
+                    <td>{{ question.view_number }}</td>
+                    <td>{{ question.vote_number }}</td>
+                    <td><a href="/question/{{ question.id }}">{{ question.title }}</a></td>
+                    <td><a href="/question/{{ question.id }}">{{ question.message }}</a></td>
                     <td>
-                        <a href="/question/{{ question['id'] }}/edit"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></a>
+                        <a href="/question/{{ question.id }}/edit">Edit</a>
                     </td>
                     <td>
-                        <a href="/question/{{ question['id'] }}/delete"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></a>
+                        <a href="/question/{{ question.id }}/delete">Delete</a>
                     </td>
                 </tr>
                 {% endfor %}
@@ -44,11 +55,9 @@
         </table>
     </div>
     {% else %}
-    <div class="no-questions">
-        <h2>Don't have any question to display.</h2>
-        <h3> Press the 'Ask a new question!' button above to add a question!</h3>
+    <div>
+        <h2>No questions to display</h2>
     </div>
     {% endif %}
 </div>
-
 {%- endblock content %}
