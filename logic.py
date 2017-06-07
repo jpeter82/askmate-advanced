@@ -122,3 +122,12 @@ def url_helper(url):
         params = url[params_start + 1:].split('&')
         params = list(map(lambda x: tuple(x.split('=')), params))
     return params
+
+
+def list_users():
+    '''
+    List all the registered users with all their attributes except their id.
+        @return
+    '''
+    users_data = db.perform_query("""SELECT user_name, reputation, reg_time FROM users;""")
+    return users_data

@@ -61,6 +61,13 @@ def question(question_id):
     return render_template("question.html", data=logic.single_question(question_id, answers=True))
 
 
+@app.route('/user/list')
+def list_all_users():
+    users = logic.list_users()
+    print(users)
+    return render_template('users.html', users=users)
+
+
 @app.errorhandler(404)
 def page_not_found(error):
     return 'Oops, page not found!', 404
