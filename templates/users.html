@@ -1,7 +1,6 @@
 {% extends "base.html" %} {% block content %}
 <div id="body-users" class="container">
     <table class="table-form">
-        {% for user in users %}
         <tr>
             <td>
                 User name
@@ -13,6 +12,7 @@
                 Registration date
             </td>
         </tr>
+        {% for user in users %}
         <tr>
             <td>
                 {{user.user_name}}
