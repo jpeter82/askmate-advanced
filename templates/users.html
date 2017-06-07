@@ -1,0 +1,30 @@
+{% extends "base.html" %} {% block content %}
+<div id="body-users" class="container">
+    <table class="table-form">
+        <tr>
+            <td>
+                User name
+            </td>
+            <td>
+                Reputation
+            </td>
+            <td>
+                Registration date
+            </td>
+        </tr>
+        {% for user in users %}
+        <tr>
+            <td>
+                {{user.user_name}}
+            </td>
+            <td>
+                {{user.reputation}}
+            </td>
+            <td>
+                {{user.reg_time}}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{%- endblock content %}

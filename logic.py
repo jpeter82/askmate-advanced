@@ -132,3 +132,12 @@ def new_user(username):
     sql = """INSERT INTO users (user_name) VALUES (%s) RETURNING id;"""
     data = (username,)
     return db.perform_query(sql, data)
+
+
+def list_users():
+    '''
+    List all the registered users with all their attributes except their id.
+        @return
+    '''
+    users_data = db.perform_query("""SELECT user_name, reputation, reg_time FROM users;""")
+    return users_data
