@@ -1,7 +1,18 @@
 {% extends "base.html" %} {% block content %}
 <div id="body-users" class="container">
-    {% for user in users %}
     <table class="table-form">
+        {% for user in users %}
+        <tr>
+            <td>
+                User name
+            </td>
+            <td>
+                Reputation
+            </td>
+            <td>
+                Registration date
+            </td>
+        </tr>
         <tr>
             <td>
                 {{user.user_name}}
@@ -13,7 +24,7 @@
                 {{user.reg_time}}
             </td>
         </tr>
+        {% endfor %}
     </table>
-    {% endfor %}
 </div>
 {%- endblock content %}
