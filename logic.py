@@ -124,6 +124,16 @@ def url_helper(url):
     return params
 
 
+def new_user(username):
+    """
+    Insert the new user into the users table
+        @username is the chosen name by the user    string
+    """
+    sql = """INSERT INTO users (user_name) VALUES (%s) RETURNING id;"""
+    data = (username,)
+    return db.perform_query(sql, data)
+
+
 def list_users():
     '''
     List all the registered users with all their attributes except their id.
