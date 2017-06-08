@@ -33,14 +33,20 @@ def search_questions():
 
 
 @app.route('/new-question', methods=['GET', 'POST'])
-def show_form():
+@app.route('/question/<int:question_id>/edit', methods=['GET', 'POST'])
+def show_form(question_id=None):
     '''
     modID   -1 in case of insert, otherwise the id of the question to be edited
-    typeID  what will be changed: question, answer, comment
+    typeID  what will be changed: question 1, answer 2, comment 3
     '''
-    modID = -1
-    typeID = 'question'
-    data = None
+    typeID = 1
+    if question_id:
+        # edit question
+        pass
+    else:
+        # insert new question
+        modID = -1
+        data = None
     users = logic.list_users()
     return render_template('form.html', data=data, typeID=typeID, modID=modID, users=users)
 

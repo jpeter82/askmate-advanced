@@ -7,11 +7,11 @@
  - Edit 
 {% endif %}
 
-{% if typeID == "question" %}
+{% if typeID == 1 %}
 Question
-{% elif typeID == "answer" -%}
+{% elif typeID == 2 -%}
 Answer
-{% elif typeID == "comment" %}
+{% elif typeID == 3 %}
 Comment
 {% endif %}
 {% endblock %}
@@ -25,20 +25,20 @@ Comment
         Edit 
         {% endif %}
         
-        {% if typeID == 'question' %}
+        {% if typeID == 1 %}
         Question
-        {% elif typeID == 'answer' %}
+        {% elif typeID == 2 %}
         Answer
-        {% elif typeID == 'comment' %} 
+        {% elif typeID == 3 %} 
         Comment 
         {% endif %}
     </h1>
     <form action="/add-edit" method="POST" enctype='multipart/form-data'>
         <div>
-            <input type="hidden" name="modID" value="{% if modID == -1 %}{{ data }}{% else %}-1{% endif %}" />
+            <input type="hidden" name="modID" value="{% if modID == -1 %}-1{% else %}{{ data }}{% endif %}" />
         </div>
         <div>
-            <input type="hidden" name="typeID" value="{% if typeID == 'question' %} question {% elif typeID == 'answer' %} answer {% elif typeID == 'comment' %} comment {% endif %}" />
+            <input type="hidden" name="typeID" value="{{ typeID }}" />
         </div>
         {% if question_id %}
         <div>
@@ -50,15 +50,15 @@ Comment
             <input type="hidden" name="answerID" value="{{ answer_id }}" />
         </div>
         {% endif %}
-        {% if typeID == "comment" %}
+        {% if typeID == 3 %}
         <div>
             <input type="hidden" name="commentID" value="{{ comment_id }}">
         </div>
         {% endif %}
-        {% if typeID == "question" %}
+        {% if typeID == 1 %}
         <div>
             <label for="title">Title:</label></br>
-            <input type="text" name="title" value="{% if modID != -1 and typeID == 'question' %}{{ data.title }}{% endif %}" required>
+            <input type="text" name="title" value="{% if modID != -1 and typeID == 1 %}{{ data.title }}{% endif %}" required>
         </div>
         {% endif %}
         <div>
