@@ -1,15 +1,20 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <title></title>
-    </head>
-    <body>
-        <form action="/" method="POST">
-            <input type="text" name="register" method="POST">
-            <input type="submit" value="Click to submit">
-        </form>
+{% extends "base.html" %}
+
+{% block title %} - Registration {% endblock %}
+
+{% block content %}
         {% if error != None %}
-            {{error}}
+        <div>
+            <span>{{error}}</span>
+        </div>
         {% endif %}
-    </body>
-</html>
+        <div>
+            <form action="/" method="POST">
+                <div>
+                    <label for="register">User name: </label>
+                    <input type="text" name="register" autofocus />
+                </div>
+                <input type="submit" value="Submit" />
+            </form>
+        </div>
+{%- endblock content %}
