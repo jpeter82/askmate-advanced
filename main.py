@@ -63,7 +63,7 @@ def handle_form():
     return internal_error(500)
 
 
-@app.route('/question/<int:question_id>')
+@app.route('/question/<int:question_id>', methods=['GET', 'POST'])
 def question(question_id):
     '''
     try:
@@ -71,7 +71,12 @@ def question(question_id):
     except IndexError:
         pass
     '''
-    return render_template("question.html", data=logic.get_one_question(question_id, answers=True))
+    if request.method == 'POST':
+        answer_id = request.form['answer_id']
+        logic.accepted_answer(answer_id)
+    users = logic.list_users()
+    return render_template("question.html", data=logic.get_one_question(question_id, answers=True),
+                           question_id=question_id, users=users)
 
 
 @app.route('/user/list')
