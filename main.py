@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, url_for, redirect
+from flask import Flask, request, render_template, url_for, redirect, flash
 import logic
 
 
@@ -9,6 +9,7 @@ app.jinja_env.add_extension('jinja2.ext.do')
 @app.route('/', methods=["GET", "POST"])
 @app.route('/list', strict_slashes=False, methods=["GET", "POST"])
 def index():
+    error = False
     if request.path == '/':
         five = True
         link = None
@@ -19,8 +20,14 @@ def index():
         questions = logic.get_questions(logic.url_helper(request.url))
     if request.method == "POST":
         user_name = request.form['register']
-        logic.new_user(user_name)
-    return render_template('index.html', questions=questions, five=five, link=link)
+        new_user = logic.new_user(user_name)
+        if new_user is None:
+            error = 'Choose another username please.'
+    if error:
+        template = registration(error)
+    else:
+        template = render_template('index.html', questions=questions, five=five, link=link)
+    return template
 
 
 @app.route('/search')
@@ -77,8 +84,8 @@ def page_not_found(error):
 
 
 @app.route('/registration', methods=['GET', 'POST'])
-def registration():
-    return render_template("reg.html")
+def registration(error=None):
+    return render_template("reg.html", error=error)
 
 
 if __name__ == '__main__':
