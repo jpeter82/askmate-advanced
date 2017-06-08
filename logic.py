@@ -157,9 +157,10 @@ def user_data(user_id):
                     LEFT OUTER JOIN comment c ON q.id = c.question_id
                     LEFT OUTER JOIN users u ON q.user_id = u.id
                     LEFT OUTER JOIN users us ON c.user_id = us.id
-                    WHERE us.id = %s"""
+                    WHERE us.id = %(userid)s OR u.id =%(userid)s"""
     sql2 = """SELECT
                     q.id,
+                    a.question_id,
                     q.title,
                     a.message AS answer_message,
                     to_char(a.submission_time, 'YYYY-MM-DD HH24:MI') AS answer_date,
@@ -171,12 +172,11 @@ def user_data(user_id):
                     LEFT OUTER JOIN comment c ON a.id = c.answer_id
                     LEFT OUTER JOIN users u ON a.answered_by = u.id
                     LEFT OUTER JOIN users us ON c.user_id = us.id
-                    WHERE us.id = %s"""
-    data = (user_id,)
+                    WHERE us.id = %(userid)s OR u.id =%(userid)s"""
+    data = {'userid': user_id}
     user_data_q = db.perform_query(sql, data)
     user_data_a_c = db.perform_query(sql2, data)
     user_data = {"q": user_data_q, "a_c": user_data_a_c}
-    print(user_data)
     return user_data
 
 
