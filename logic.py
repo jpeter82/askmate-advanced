@@ -139,7 +139,7 @@ def list_users():
     List all the registered users with all their attributes except their id.
         @return
     '''
-    users_data = db.perform_query("""SELECT user_name, reputation, reg_time FROM users;""")
+    users_data = db.perform_query("""SELECT user_name, reputation, reg_time, id FROM users;""")
     return users_data
 
 
@@ -185,6 +185,7 @@ def get_one_question(question_id, answers=False):
                          to_char(a.submission_time, 'YYYY-MM-DD HH24:MI') AS answer_date,
                          a.vote_number,
                          a.answered_by,
+                         a.accepted_by,
                          u.user_name AS answer_user_name,
                          c.message AS comment_body,
                          to_char(c.submission_time, 'YYYY-MM-DD HH24:MI') AS comment_date,
@@ -328,5 +329,16 @@ def select_edit_data(id, mode):
     else:
         raise ValueError
     data = (id,)
+    result = db.perform_query(sql, data)
+    return result
+
+  
+def accepted_answer(answer_id):
+    """
+    Updates in the answer table the accepted_by field with the user's id.
+    @answer_id 
+    """
+    sql = """UPDATE answer SET accepted_by = %s WHERE id = %s RETURNING id;"""
+    data = (answer_id, answer_id)
     result = db.perform_query(sql, data)
     return result

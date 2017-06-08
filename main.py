@@ -9,6 +9,7 @@ app.jinja_env.add_extension('jinja2.ext.do')
 @app.route('/', methods=["GET", "POST"])
 @app.route('/list', strict_slashes=False, methods=["GET", "POST"])
 def index():
+    error = False
     if request.path == '/':
         five = True
         link = None
@@ -19,8 +20,14 @@ def index():
         questions = logic.get_questions(logic.url_helper(request.url))
     if request.method == "POST":
         user_name = request.form['register']
-        logic.new_user(user_name)
-    return render_template('index.html', questions=questions, five=five, link=link)
+        new_user = logic.new_user(user_name)
+        if new_user is None:
+            error = 'Choose another username please.'
+    if error:
+        template = registration(error)
+    else:
+        template = render_template('index.html', questions=questions, five=five, link=link)
+    return template
 
 
 @app.route('/search')
@@ -101,7 +108,7 @@ def handle_form():
     return internal_error(500)
 
 
-@app.route('/question/<int:question_id>')
+@app.route('/question/<int:question_id>', methods=['GET', 'POST'])
 def question(question_id):
     '''
     try:
@@ -109,7 +116,12 @@ def question(question_id):
     except IndexError:
         pass
     '''
-    return render_template("question.html", data=logic.get_one_question(question_id, answers=True))
+    if request.method == 'POST':
+        answer_id = request.form['answer_id']
+        logic.accepted_answer(answer_id)
+    users = logic.list_users()
+    return render_template("question.html", data=logic.get_one_question(question_id, answers=True),
+                           question_id=question_id, users=users)
 
 
 @app.route('/user/list')
@@ -130,8 +142,8 @@ def internal_error(error):
 
 
 @app.route('/registration', methods=['GET', 'POST'])
-def registration():
-    return render_template("reg.html")
+def registration(error=None):
+    return render_template("reg.html", error=error)
 
 
 if __name__ == '__main__':
