@@ -41,27 +41,30 @@ def show_form():
     modID = -1
     typeID = 'question'
     data = None
-    return render_template('form.html', data=data, typeID=typeID, modID=modID)
+    users = logic.list_users()
+    return render_template('form.html', data=data, typeID=typeID, modID=modID, users=users)
 
 
 @app.route('/add-edit', methods=['POST'])
 def handle_form():
     if request.method == 'POST':
-        if request.form.get(modID, 0) and request.form.get(typeID, ''):
-            # send data to process_form in logic (get back questionID if insert)
-            pass
-    # redirect to question.html
-    return render_template("question.html", data=logic.single_question(question_id, answers=True))
+        if request.form.get('modID', 0) and request.form.get('typeID', ''):
+            result = logic.process_form(request.form)
+            if result['status']:
+                question_id = result['question_id']
+                return render_template("question.html", data=logic.get_one_question(question_id, answers=True))
+    return internal_error(500)
 
 
 @app.route('/question/<int:question_id>')
-# __TODO__
 def question(question_id):
+    '''
     try:
         logic.update_view_number(question_id)
     except IndexError:
         pass
-    return render_template("question.html", data=logic.single_question(question_id, answers=True))
+    '''
+    return render_template("question.html", data=logic.get_one_question(question_id, answers=True))
 
 
 @app.route('/user/list')
@@ -74,6 +77,11 @@ def list_all_users():
 @app.errorhandler(404)
 def page_not_found(error):
     return 'Oops, page not found!', 404
+
+
+@app.errorhandler(500)
+def internal_error(error):
+    return 'Internal server error!', 500
 
 
 @app.route('/registration', methods=['GET', 'POST'])
