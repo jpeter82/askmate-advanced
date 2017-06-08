@@ -141,3 +141,141 @@ def list_users():
     '''
     users_data = db.perform_query("""SELECT user_name, reputation, reg_time FROM users;""")
     return users_data
+
+
+def get_user_by_name(user_name):
+    user_id = db.perform_query("""SELECT id FROM users WHERE user_name = %s LIMIT 1;""", (user_name,))
+    return user_id[0]['id']
+
+
+def get_one_question(question_id, answers=False):
+    """
+    Returns a single question and corresponding anwers with comments in dict
+        @param    question_id   int       The id of the question to be displayed
+        @param    answers       boolean   True if you need only the question, False if you need both
+        @return                 dict      The result set of questions and answers
+    """
+    answer = None
+    data = (question_id,)
+
+    sql = """SELECT q.title,
+                    q.message AS question_body,
+                    q.id,
+                    to_char(q.submission_time, 'YYYY-MM-DD HH24:MI') AS question_date,
+                    q.view_number,
+                    q.vote_number,
+                    q.user_id AS question_user_id,
+                    u.user_name AS question_user_name,
+                    c.message AS comment_body,
+                    to_char(c.submission_time, 'YYYY-MM-DD HH24:MI') AS comment_date,
+                    c.id as comment_id,
+                    c.user_id as question_comment_user_id,
+                    us.user_name AS question_comment_user_name
+             FROM question q
+             LEFT OUTER JOIN comment c ON q.id = c.question_id
+             LEFT OUTER JOIN users u ON q.user_id = u.id
+             LEFT OUTER JOIN users us ON c.user_id = us.id
+             WHERE q.id = %s
+             ORDER BY c.submission_time DESC;"""
+    question = db.perform_query(sql, data)
+
+    if answers:
+        sql2 = """SELECT a.message AS answer_body,
+                         a.id AS answer_id,
+                         to_char(a.submission_time, 'YYYY-MM-DD HH24:MI') AS answer_date,
+                         a.vote_number,
+                         a.answered_by,
+                         u.user_name AS answer_user_name,
+                         c.message AS comment_body,
+                         to_char(c.submission_time, 'YYYY-MM-DD HH24:MI') AS comment_date,
+                         c.id AS comment_id,
+                         c.answer_id AS comment_answer_id,
+                         c.user_id,
+                         us.user_name AS answer_comment_user_name
+                  FROM answer a
+                  LEFT OUTER JOIN comment c ON a.id = c.answer_id
+                  LEFT OUTER JOIN users u ON a.answered_by = u.id
+                  LEFT OUTER JOIN users us ON c.user_id = us.id
+                  WHERE a.question_id = %s
+                  ORDER BY a.vote_number DESC, a.submission_time DESC, c.submission_time DESC;"""
+        answer = db.perform_query(sql2, data)
+
+        result = {'question': question, 'answer': answer}
+        return result
+
+
+def get_question_by_answer_id(answer_id):
+    """
+    Get corresponding answer for given question id \n
+        @param      answer_id          int      Which answer you need the corresponding question id to \n
+        @return                        int      Get the corresponding question id
+    """
+    question_id = False
+    if answer_id:
+        sql = """SELECT question_id FROM answer WHERE id = %s;"""
+        data = (answer_id,)
+        question_id = db.perform_query(sql, data)[0]['question_id']
+    return question_id
+
+
+def process_form(form_data):
+    question_id = False
+    if form_data['modID'] == -1:
+        # insert
+        if form_data['typeID'] == 'question':
+            sql = """INSERT INTO question (title, message, user_id) VALUES (%s, %s, %s) RETURNING id AS question_id;"""
+            data = (form_data['title'], form_data['message'], get_user_by_name(form_data['user']))
+        elif form_data['typeID'] == 'answer':
+            sql = """INSERT INTO answer (message, answered_by) VALUES (%s, %s) RETURNING question_id;"""
+            data = (form_data['message'], get_user_by_name(form_data['user']))
+        elif form_data['typeID'] == 'comment' and form_data['question_id']:
+            sql = """INSERT INTO comment (question_id, message, user_id) VALUES (%s, %s, %s) RETURNING question_id;"""
+            data = (form_data['question_id'], form_data['message'], get_user_by_name(form_data['user']))
+        elif form_data['typeID'] == 'comment' and form_data['answer_id']:
+            sql = """INSERT INTO comment (answer_id, message, user_id) VALUES (%s, %s, %s) RETURNING id;"""
+            data = (form_data['answer_id'], form_data['message'], get_user_by_name(form_data['user']))
+            question_id = get_question_by_answer_id(form_data['answer_id'])
+        else:
+            raise ValueError
+    else:
+        # update
+        if form_data['typeID'] == 'question':
+            sql = """UPDATE question SET title = %s, message = %s WHERE id = %s RETURNING id AS question_id"""
+            data = (form_data['title'], form_data['message'], form_data['question_id'])
+        elif form_data['typeID'] == 'answer':
+            sql = """UPDATE answer SET message = %s WHERE id = %s RETURNING question_id"""
+            data = (form_data['message'], form_data['answer_id'])
+        elif form_data['typeID'] == 'comment':
+            sql = """UPDATE comment SET message = %s WHERE id = %s RETURNING id;"""
+            data = (form_data['message'], form_data['comment_id'])
+            question_id = form_data['question_id'] if form_data['question_id'] else get_question_by_answer_id(
+                                                                                                form_data['answer_id'])
+        else:
+            raise ValueError
+
+    query_result = db.perform_query(sql, data)
+    status = True if query_result else False
+    question_id = question_id if question_id else query_result[0]['question_id']
+    result = {'status': status, 'question_id': question_id}
+    return result
+
+
+def process_delete(id, table):
+    """
+    Delete a question, answer or comment
+        @param    id       int       The id of the record to be deleted
+        @param    table    string    The table from which the id will be deleted
+        @return            bool      Status: True if successful, otherwise False
+    """
+    data = (id,)
+    if table == "question":
+        sql = """DELETE FROM question WHERE id = %s RETURNING id;"""
+    elif table == 'answer':
+        sql = """DELETE FROM answer WHERE id = %s RETURNING id;"""
+    elif table == 'comment':
+        sql = """DELETE FROM comment WHERE id = %s RETURNING id;"""
+    else:
+        raise ValueError
+
+    status = True if db.perform_query(sql, data) else False
+    return status
