@@ -1,0 +1,114 @@
+{% extends "base.html" %} {% block content %}
+<div id="body-user" class="container">
+
+    <h1><span>User: </span>{{ user[0]["user_name"] }}</h1>
+
+    {% if user_data["q"] != [] %}
+    <h2>{{ user[0]["user_name"] }}'s Questions</h2>
+    <table class="user_question table-form">
+        <tr>
+            <td>
+                Question title
+            </td>
+            <td>
+                Date
+            </td>
+        </tr>
+        {% for data in user_data["q"] %}
+        <tr>
+            <td>
+                <a href="/question/{{data.id}}">{{data.title}}</a>
+            </td>
+            <td>
+                {{data.question_date}}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    </br>
+    </br>
+    {% else %}
+    <p>There're no questions for this user.</p>
+    {% endif %} {% if user_data["a_c"] != [] %}
+    <h2>{{ user[0]["user_name"] }}'s Answers</h2>
+    <table class="user_answer table-form">
+        <tr>
+            <td>
+                Question title
+            </td>
+            <td>
+                Answer message
+            </td>
+            <td>
+                Answer date
+            </td>
+            <td>
+                Accepted
+            </td>
+        </tr>
+        {% for data in user_data["a_c"] %}
+        <tr>
+            <td>
+                <a href="/question/{{data.id}}">{{data.title}}</a>
+            </td>
+            <td>
+                {{data.comment_message}}
+            </td>
+            <td>
+                {{data.answer_date}}
+            </td>
+            <td>
+                {{data.accepted}}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    </br>
+    </br>
+    {% else %}
+    <p>There're no answers for this user.</p>
+    {% endif %} {% if user_data["a_c"] != [] %}
+    <h2>{{ user[0]["user_name"] }}'s Comments</h2>
+    <table class="user_comment table-form">
+        <tr>
+            <td>
+                Question title
+            </td>
+            <td>
+                Answer message
+            </td>
+            <td>
+                Comment message
+            </td>
+            <td>
+                Comment date
+            </td>
+        </tr>
+        {% for data in user_data["a_c"] %}
+        <tr>
+            <td>
+                <a href="/question/{{data.id}}">{{data.title}}</a>
+            </td>
+            <td>
+                {{data.answer_message}}
+            </td>
+            <td>
+                {{data.comment_message}}
+            </td>
+            <td>
+                {{data.comment_date}}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    </br>
+    </br>
+    {% else %}
+    <p>There're no comments for this user.</p>
+
+    {% endif %}
+    <div>
+        <a href="/">Back to Home!</a>
+    </div>
+</div>
+{%- endblock content %}

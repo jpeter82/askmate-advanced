@@ -139,8 +139,52 @@ def list_users():
     List all the registered users with all their attributes except their id.
         @return
     '''
-    users_data = db.perform_query("""SELECT user_name, reputation, reg_time FROM users;""")
+    users_data = db.perform_query("""SELECT user_name, reputation, reg_time, id FROM users;""")
     return users_data
+
+
+def user_data(user_id):
+    '''
+    List all the data added by a user (comments, answers, questions) by their id.
+        @return
+    '''
+    sql = """SELECT
+                    q.id,
+                    us.user_name,
+                    q.title,
+                    to_char(q.submission_time, 'YYYY-MM-DD HH24:MI') AS question_date
+                    FROM question q
+                    LEFT OUTER JOIN comment c ON q.id = c.question_id
+                    LEFT OUTER JOIN users u ON q.user_id = u.id
+                    LEFT OUTER JOIN users us ON c.user_id = us.id
+                    WHERE us.id = %s"""
+    sql2 = """SELECT
+                    q.id,
+                    q.title,
+                    a.message AS answer_message,
+                    to_char(a.submission_time, 'YYYY-MM-DD HH24:MI') AS answer_date,
+                    c.message AS comment_message,
+                    to_char(c.submission_time, 'YYYY-MM-DD HH24:MI') AS comment_date,
+                    CASE WHEN a.accepted_by IS NULL THEN 0 ELSE 1 END AS accepted
+                    FROM answer a
+                    LEFT OUTER JOIN question q ON q.id = a.question_id
+                    LEFT OUTER JOIN comment c ON a.id = c.answer_id
+                    LEFT OUTER JOIN users u ON a.answered_by = u.id
+                    LEFT OUTER JOIN users us ON c.user_id = us.id
+                    WHERE us.id = %s"""
+    data = (user_id,)
+    user_data_q = db.perform_query(sql, data)
+    user_data_a_c = db.perform_query(sql2, data)
+    user_data = {"q": user_data_q, "a_c": user_data_a_c}
+    print(user_data)
+    return user_data
+
+
+def user_by_id(id):
+    sql = """SELECT user_name FROM users WHERE id = %s"""
+    data = (id,)
+    user = db.perform_query(sql, data)
+    return user
 
 
 def get_user_by_name(user_name):
@@ -249,7 +293,7 @@ def process_form(form_data):
             sql = """UPDATE comment SET message = %s WHERE id = %s RETURNING id;"""
             data = (form_data['message'], form_data['comment_id'])
             question_id = form_data['question_id'] if form_data['question_id'] else get_question_by_answer_id(
-                                                                                                form_data['answer_id'])
+                form_data['answer_id'])
         else:
             raise ValueError
 

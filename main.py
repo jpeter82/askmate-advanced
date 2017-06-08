@@ -70,8 +70,14 @@ def question(question_id):
 @app.route('/user/list')
 def list_all_users():
     users = logic.list_users()
-    print(users)
     return render_template('users.html', users=users)
+
+
+@app.route('/user/<user_id>')
+def display_user_page(user_id=None):
+    user_data = logic.user_data(user_id)
+    user = logic.user_by_id(user_id)
+    return render_template('user.html', user_data=user_data, user=user)
 
 
 @app.errorhandler(404)
