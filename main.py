@@ -98,6 +98,28 @@ def show_comment_form(comment_id=None, answer_id=None, question_id=None):
                            question_id=question_id, answer_id=answer_id, users=users)
 
 
+@app.route("/answer/<int:answer_id>/delete")
+@app.route("/question/<int:question_id>/delete")
+@app.route("/comments/<int:comment_id>/delete")
+def delete(comment_id=None, answer_id=None, question_id=None):
+    if comment_id:
+        id = comment_id
+        mode = 'comment'
+        question_id = logic.select_edit_data(id, mode)[0]['question_id']
+        goto = redirect(url_for('question', question_id=question_id))
+    elif answer_id:
+        id = answer_id
+        mode = 'answer'
+        question_id = logic.get_question_by_answer_id(answer_id)
+        goto = redirect(url_for('question', question_id=question_id))
+    else:
+        id = question_id
+        mode = 'question'
+        goto = redirect(url_for('index'))
+    logic.process_delete(id, mode)
+    return goto
+
+
 @app.route('/add-edit', methods=['POST'])
 def handle_form():
     if request.method == 'POST':
@@ -147,7 +169,7 @@ def internal_error(error):
     return 'Internal server error!', 500
 
 
-@app.route('/registration', methods=['GET', 'POST'])
+@app.route('/registration')
 def registration(error=None):
     return render_template("reg.html", error=error)
 

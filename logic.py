@@ -139,7 +139,7 @@ def list_users():
     List all the registered users with all their attributes except their id.
         @return
     '''
-    users_data = db.perform_query("""SELECT user_name, reputation, reg_time, id FROM users;""")
+    users_data = db.perform_query("""SELECT user_name, reputation, reg_time FROM users;""")
     return users_data
 
 
@@ -229,7 +229,6 @@ def get_one_question(question_id, answers=False):
                          to_char(a.submission_time, 'YYYY-MM-DD HH24:MI') AS answer_date,
                          a.vote_number,
                          a.answered_by,
-                         a.accepted_by,
                          u.user_name AS answer_user_name,
                          c.message AS comment_body,
                          to_char(c.submission_time, 'YYYY-MM-DD HH24:MI') AS comment_date,
@@ -278,21 +277,21 @@ def process_form(form_data):
                 # question
                 sql = """INSERT INTO question (title, message, user_id)
                          VALUES (%s, %s, %s) RETURNING id AS question_id;"""
-            elif typeID == 2:
                 data = (form_data['title'], form_data['message'], get_user_by_name(form_data['user']))
+            elif typeID == 2:
                 # answer
                 sql = """INSERT INTO answer (question_id, message, answered_by)
                          VALUES (%s, %s, %s) RETURNING question_id;"""
-            elif typeID == 3 and form_data.get('answer_id', -10) == -10:
                 data = (form_data['question_id'], form_data['message'], get_user_by_name(form_data['user']))
+            elif typeID == 3 and form_data.get('answer_id', -10) == -10:
                 # comment to question
                 sql = """INSERT INTO comment (question_id, message, user_id)
                          VALUES (%s, %s, %s) RETURNING question_id;"""
                 data = (form_data['question_id'], form_data['message'], get_user_by_name(form_data['user']))
             elif typeID == 3 and form_data['answer_id']:
                 # comment to answer
-                data = (form_data['answer_id'], form_data['message'], get_user_by_name(form_data['user']))
                 sql = """INSERT INTO comment (answer_id, message, user_id) VALUES (%s, %s, %s) RETURNING id;"""
+                data = (form_data['answer_id'], form_data['message'], get_user_by_name(form_data['user']))
                 question_id = get_question_by_answer_id(form_data['answer_id'])
             else:
                 raise ValueError
@@ -376,11 +375,11 @@ def select_edit_data(id, mode):
     result = db.perform_query(sql, data)
     return result
 
-  
+
 def accepted_answer(answer_id):
     """
     Updates in the answer table the accepted_by field with the user's id.
-    @answer_id 
+    @answer_id
     """
     sql = """UPDATE answer SET accepted_by = %s WHERE id = %s RETURNING id;"""
     data = (answer_id, answer_id)
