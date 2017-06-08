@@ -19,7 +19,7 @@
         {% for user in users %}
         <tr>
             <td>
-                {{user.user_name}}
+                <a href="/user/{{ user.id }}">{{user.user_name}}</a>
             </td>
             <td>
                 {{user.reputation}}

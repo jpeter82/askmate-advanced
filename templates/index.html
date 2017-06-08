@@ -1,15 +1,13 @@
-{% extends "base.html" %}
-{% block title %} - {% if question %} Edit {% else -%} Add new {% endif %} Record{% endblock %}
+{% extends "base.html" %} {% block title %} - {% if question %} Edit {% else -%} Add new {% endif %} Record{% endblock %}
 {% block content %}
 <div>
     <h1>AskMate</h1>
     <p>AskMate is a crowdsourced Q&#38;A site where peaople can easily ask and answer to help each other.</p>
+    <div><a href="/user/list">Click here to see Users and their Reputation!</a></div>
     <a href="/new-question">Ask new Question!</a>
-    <br />
-    {% if five %}
+    <br /> {% if five %}
     <span><a href="/list">Click here to see more questions</a></span>
-    <br />
-    {% endif %}
+    <br /> {% endif %}
     <a href="/registration">Click to register</a>
     <h2>Questions</h2>
     {% if questions %}
@@ -20,10 +18,9 @@
         </form>
     </div>
     <div>
-    {% if not five %}
-    <br />
-    <span><a href="/list">Reset column order</a></span>
-    {% endif %}
+        {% if not five %}
+        <br />
+        <span><a href="/list">Reset column order</a></span> {% endif %}
     </div>
     <div>
         <table id="questions-table">
