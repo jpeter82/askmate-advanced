@@ -221,44 +221,61 @@ def get_question_by_answer_id(answer_id):
 
 def process_form(form_data):
     question_id = False
-    if form_data['modID'] == -1:
-        # insert
-        if form_data['typeID'] == 'question':
-            sql = """INSERT INTO question (title, message, user_id) VALUES (%s, %s, %s) RETURNING id AS question_id;"""
-            data = (form_data['title'], form_data['message'], get_user_by_name(form_data['user']))
-        elif form_data['typeID'] == 'answer':
-            sql = """INSERT INTO answer (message, answered_by) VALUES (%s, %s) RETURNING question_id;"""
-            data = (form_data['message'], get_user_by_name(form_data['user']))
-        elif form_data['typeID'] == 'comment' and form_data['question_id']:
-            sql = """INSERT INTO comment (question_id, message, user_id) VALUES (%s, %s, %s) RETURNING question_id;"""
-            data = (form_data['question_id'], form_data['message'], get_user_by_name(form_data['user']))
-        elif form_data['typeID'] == 'comment' and form_data['answer_id']:
-            sql = """INSERT INTO comment (answer_id, message, user_id) VALUES (%s, %s, %s) RETURNING id;"""
-            data = (form_data['answer_id'], form_data['message'], get_user_by_name(form_data['user']))
-            question_id = get_question_by_answer_id(form_data['answer_id'])
-        else:
-            raise ValueError
+    try:
+        modID = int(form_data['modID'])
+        typeID = int(form_data['typeID'])
+    except ValueError:
+        status = False
+        question_id = None
     else:
-        # update
-        if form_data['typeID'] == 'question':
-            sql = """UPDATE question SET title = %s, message = %s WHERE id = %s RETURNING id AS question_id"""
-            data = (form_data['title'], form_data['message'], form_data['question_id'])
-        elif form_data['typeID'] == 'answer':
-            sql = """UPDATE answer SET message = %s WHERE id = %s RETURNING question_id"""
-            data = (form_data['message'], form_data['answer_id'])
-        elif form_data['typeID'] == 'comment':
-            sql = """UPDATE comment SET message = %s WHERE id = %s RETURNING id;"""
-            data = (form_data['message'], form_data['comment_id'])
-            question_id = form_data['question_id'] if form_data['question_id'] else get_question_by_answer_id(
-                                                                                                form_data['answer_id'])
+        if modID == -1:
+            # insert
+            if typeID == 1:
+                # question
+                sql = """INSERT INTO question (title, message, user_id)
+                         VALUES (%s, %s, %s) RETURNING id AS question_id;"""
+                data = (form_data['title'], form_data['message'], get_user_by_name(form_data['user']))
+            elif typeID == 2:
+                # answer
+                sql = """INSERT INTO answer (question_id, message, answered_by)
+                         VALUES (%s, %s, %s) RETURNING question_id;"""
+                data = (form_data['question_id'], form_data['message'], get_user_by_name(form_data['user']))
+            elif typeID == 3 and form_data.get('answer_id', -10) == -10:
+                # comment to question
+                sql = """INSERT INTO comment (question_id, message, user_id)
+                         VALUES (%s, %s, %s) RETURNING question_id;"""
+                data = (form_data['question_id'], form_data['message'], get_user_by_name(form_data['user']))
+            elif typeID == 3 and form_data['answer_id']:
+                # comment to answer
+                sql = """INSERT INTO comment (answer_id, message, user_id) VALUES (%s, %s, %s) RETURNING id;"""
+                data = (form_data['answer_id'], form_data['message'], get_user_by_name(form_data['user']))
+                question_id = get_question_by_answer_id(form_data['answer_id'])
+            else:
+                raise ValueError
         else:
-            raise ValueError
+            # update
+            if typeID == 1:
+                # question
+                sql = """UPDATE question SET title = %s, message = %s WHERE id = %s RETURNING id AS question_id"""
+                data = (form_data['title'], form_data['message'], modID)
+            elif typeID == 2:
+                # answer
+                sql = """UPDATE answer SET message = %s WHERE id = %s RETURNING question_id"""
+                data = (form_data['message'], modID)
+            elif typeID == 3:
+                # comment
+                sql = """UPDATE comment SET message = %s WHERE id = %s RETURNING id;"""
+                data = (form_data['message'], modID)
+                question_id = form_data['question_id'] if form_data.get(
+                                    'question_id', '') else get_question_by_answer_id(form_data['answer_id'])
+            else:
+                raise ValueError
 
-    query_result = db.perform_query(sql, data)
-    status = True if query_result else False
-    question_id = question_id if question_id else query_result[0]['question_id']
-    result = {'status': status, 'question_id': question_id}
-    return result
+        query_result = db.perform_query(sql, data)
+        status = True if query_result else False
+        question_id = question_id if question_id else query_result[0]['question_id']
+        result = {'status': status, 'question_id': question_id}
+        return result
 
 
 def process_delete(id, table):
@@ -282,6 +299,40 @@ def process_delete(id, table):
     return status
 
 
+def select_edit_data(id, mode):
+    """
+    Returns a dict by ID from DB
+        @param    id_to_get   int       The id of the needed table
+        @param    mode        string    Which table
+        @return               dict      Needed table in a dict
+    """
+    if mode == 'question':
+        sql = """SELECT id,
+                        title,
+                        message
+                 FROM question
+                 WHERE id = %s;"""
+    elif mode == 'answer':
+        sql = """SELECT id,
+                        message,
+                        question_id
+                 FROM answer
+                 WHERE id = %s;"""
+    elif mode == 'comment':
+        sql = """SELECT c.id,
+                        c.message,
+                        CASE WHEN c.question_id IS NOT NULL THEN c.question_id ELSE a.question_id END AS question_id,
+                        c.answer_id
+                 FROM comment c
+                 LEFT OUTER JOIN answer a ON a.id = c.answer_id
+                 WHERE c.id = %s;"""
+    else:
+        raise ValueError
+    data = (id,)
+    result = db.perform_query(sql, data)
+    return result
+
+  
 def accepted_answer(answer_id):
     """
     Updates in the answer table the accepted_by field with the user's id.
