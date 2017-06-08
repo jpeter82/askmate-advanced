@@ -34,3 +34,12 @@ def perform_query(sql, data=None):
             cursor.execute(sql, data)
             records = cursor.fetchall()
     return records
+
+
+def perform_proc(proc_name, data=[]):
+    result = None
+    if proc_name:
+        with get_cursor() as cursor:
+            cursor.callproc(proc_name, data)
+            result = cursor.fetchall()
+    return result
