@@ -18,15 +18,14 @@ def index():
         five = False
         link = logic.generate_links(logic.url_helper(request.url))
         questions = logic.get_questions(logic.url_helper(request.url))
+
+    template = render_template('index.html', questions=questions, five=five, link=link)
+
     if request.method == "POST":
-        user_name = request.form['register']
-        new_user = logic.new_user(user_name)
-        if new_user is None:
-            error = 'Choose another username please.'
-    if error:
-        template = registration(error)
-    else:
-        template = render_template('index.html', questions=questions, five=five, link=link)
+        if request.form.get('register', ''):
+            if logic.new_user(request.form['register']) is None:
+                error = 'This username already exists, please choose another one!'
+                template = registration(error)
     return template
 
 
@@ -159,6 +158,11 @@ def display_user_page(user_id=None):
     return render_template('user.html', user_data=user_data, user=user)
 
 
+@app.route('/registration')
+def registration(error=None):
+    return render_template("reg.html", error=error)
+
+
 @app.errorhandler(404)
 def page_not_found(error):
     return 'Oops, page not found!', 404
@@ -167,11 +171,6 @@ def page_not_found(error):
 @app.errorhandler(500)
 def internal_error(error):
     return 'Internal server error!', 500
-
-
-@app.route('/registration')
-def registration(error=None):
-    return render_template("reg.html", error=error)
 
 
 if __name__ == '__main__':
