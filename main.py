@@ -72,8 +72,9 @@ def question(question_id):
         pass
     '''
     if request.method == 'POST':
+        user_id = request.form['accept']
         answer_id = request.form['answer_id']
-        logic.accepted_answer(answer_id)
+        logic.accepted_answer(user_id, answer_id)
     users = logic.list_users()
     return render_template("question.html", data=logic.get_one_question(question_id, answers=True),
                            question_id=question_id, users=users)
