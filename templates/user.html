@@ -87,10 +87,10 @@
         {% for data in user_data["comments"] %}
         <tr>
             <td>
-                <a href="/question/{{data.id}}">{{data.title}}</a>
+                {% if data.title %}<a href="/question/{{data.id}}">{{data.title}}</a>{% endif %}
             </td>
             <td>
-                {{data.answer_message}}
+                {% if data.answer_message %}{{data.answer_message}}{% endif %}
             </td>
             <td>
                 {{data.comment_message}}
