@@ -23,7 +23,7 @@ def get_cursor():
     try:
         yield conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         conn.commit()
-    except Exception as e:
+    except DatabaseError as e:
         conn.rollback()
         print('An SQL error occured:', e)
     finally:
