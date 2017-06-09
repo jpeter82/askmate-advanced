@@ -145,6 +145,18 @@ def question(question_id):
                            question_id=question_id, users=users)
 
 
+@app.route("/answer/<answer_id>/vote-<direction>")
+@app.route("/question/<question_id>/vote-<direction>")
+def vote(direction, question_id=None, answer_id=None):
+    user_id = request.args.get('uid', -1)
+    if question_id:
+        logic.process_votes(question_id, user_id, questions=True, direction=direction)
+    elif answer_id:
+        logic.process_votes(answer_id, user_id, questions=False, direction=direction)
+        question_id = logic.get_question_by_answer_id(answer_id)
+    return redirect(url_for('question', question_id=question_id))
+
+
 @app.route('/user/list')
 def list_all_users():
     users = logic.list_users()

@@ -385,4 +385,32 @@ def accepted_answer(answer_id, user_id):
     sql = """UPDATE answer SET accepted_by = %s WHERE id = %s RETURNING id;"""
     data = (user_id, answer_id)
     result = db.perform_query(sql, data)
+    reputation = db.perform_proc('update_reputation', [user_id, 'accepted_answer'])
     return result
+
+
+def process_votes(id, user_id, questions=True, direction='up'):
+    status = False
+    if id:
+        if direction not in ('up', 'down'):
+            raise ValueError
+
+        if questions is True:
+            if direction == 'up':
+                sql = """UPDATE question SET vote_number = vote_number + 1 WHERE id = %s RETURNING id;"""
+                reputation = db.perform_proc('update_reputation', [user_id, 'upvoted_question'])
+            else:
+                sql = """UPDATE question SET vote_number = vote_number - 1 WHERE id = %s RETURNING id;"""
+                reputation = db.perform_proc('update_reputation', [user_id, 'downvoted_question'])
+        elif questions is False:
+            if direction == 'up':
+                sql = """UPDATE answer SET vote_number = vote_number + 1 WHERE id = %s RETURNING id;"""
+                reputation = db.perform_proc('update_reputation', [user_id, 'upvoted_answer'])
+            else:
+                sql = """UPDATE answer SET vote_number = vote_number - 1 WHERE id = %s RETURNING id;"""
+                reputation = db.perform_proc('update_reputation', [user_id, 'downvoted_answer'])
+        else:
+            raise ValueError
+        data = (id,)
+        status = True if db.perform_query(sql, data) else False
+    return status

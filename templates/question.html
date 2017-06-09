@@ -18,12 +18,12 @@ Record
                 <td>
                     <div>
                         <span>
-                            <a href="/question/{{ data['question'][0]['id'] }}/vote-up">up</a>
+                            <a href="/question/{{ data['question'][0]['id'] }}/vote-up?uid={{ data['question'][0]['question_user_id'] }}">up</a>
                         </span>
                     </div>
                     <div>
                         <span>
-                            <a href="/question/{{ data['question'][0]['id'] }}/vote-down">down</a>
+                            <a href="/question/{{ data['question'][0]['id'] }}/vote-down?uid={{ data['question'][0]['question_user_id'] }}">down</a>
                         </span>
                     </div>
                 </td>
@@ -86,10 +86,10 @@ Record
             <tr>
                 <td>
                     <div>
-                        <a href="/answer/{{item['answer_id']}}/vote-up">Up<span class="glyphicon glyphicon-chevron-up" aria-hidden="true"></span></a>
+                        <a href="/answer/{{item['answer_id']}}/vote-up?uid={{ item['answered_by'] }}">Up<span class="glyphicon glyphicon-chevron-up" aria-hidden="true"></span></a>
                     </div>
                     <div>
-                        <a href="/answer/{{item['answer_id']}}/vote-down">Down<span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span></a>
+                        <a href="/answer/{{item['answer_id']}}/vote-down?uid={{ item['answered_by'] }}">Down<span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span></a>
                     </div>
                 </td>
                 <td>
