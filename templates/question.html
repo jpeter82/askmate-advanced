@@ -10,19 +10,19 @@ Record
 {% block content %}
 {% set last_answer = [] %}
 {% set accepted_answer = [] %}
-<div>
-    <h1>{{ data['question'][0]['title'] }}</h1>
-    <div>
+<div id="body-question" class="container">
+    <h1 class="title-text-question">{{ data['question'][0]['title'] }}</h1>
+    <div class="table-div">
         <table>
             <tr>
                 <td>
                     <div>
-                        <span>
+                        <span class="vote-num">
                             <a href="/question/{{ data['question'][0]['id'] }}/vote-up?uid={{ data['question'][0]['question_user_id'] }}">up</a>
                         </span>
                     </div>
                     <div>
-                        <span>
+                        <span class="vote-num">
                             <a href="/question/{{ data['question'][0]['id'] }}/vote-down?uid={{ data['question'][0]['question_user_id'] }}">down</a>
                         </span>
                     </div>

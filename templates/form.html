@@ -32,7 +32,7 @@ Comment
         {% elif typeID == 3 %} 
         Comment 
         {% endif %}
-    </h1>
+    </h1 class="title-text-question">
     <form action="/add-edit" method="POST" enctype='multipart/form-data'>
         <div>
             <input type="hidden" name="modID" value="{% if modID == -1 %}-1{% else %}{{ data.id }}{% endif %}" />
@@ -53,12 +53,12 @@ Comment
         {% if typeID == 1 %}
         <div>
             <label for="title">Title:</label></br>
-            <input type="text" name="title" {% if modID != -1 %}value="{{ data.title }}"{% endif %} required />
+            <input class="form-control" type="text" name="title" {% if modID != -1 %}value="{{ data.title }}"{% endif %} required />
         </div>
         {% endif %}
         <div>
             <label for="message">Description:</label></br>
-            <textarea type="text" name="message" minlength="10" required>{% if modID != -1 %}{{ data.message }}{% endif %}</textarea>
+            <textarea class="form-control" type="text" name="message" minlength="10" required>{% if modID != -1 %}{{ data.message }}{% endif %}</textarea>
         </div>
         {% if modID == -1 %}
         <div>
@@ -72,7 +72,7 @@ Comment
         </div>
         <br />
         {% endif %}
-        <button type="submit">Submit</button>
+        <button class="btn btn-success" type="submit">Submit</button>
     </form>
 </div>
 {%- endblock content %}
