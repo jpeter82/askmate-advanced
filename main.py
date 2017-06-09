@@ -31,11 +31,16 @@ def index():
 
 @app.route('/search')
 def search_questions():
+    data = None
     template = redirect(request.referrer)
     search_phrase = request.args.get('q', None)
     if search_phrase is not None and len(str(search_phrase)) > 2:
-        data = logic.user_search(search_phrase)
-        template = render_template('search.html', search_phrase=search_phrase, data=data)
+        try:
+            data = logic.user_search(search_phrase)
+        except OperationalError:
+            template = redirect(internal_error(500))
+        else:
+            template = render_template('search.html', search_phrase=search_phrase, data=data)
     return template
 
 
@@ -121,12 +126,18 @@ def delete(comment_id=None, answer_id=None, question_id=None):
 
 @app.route('/add-edit', methods=['POST'])
 def handle_form():
+    message = None
+    template = internal_error(500)
     if request.method == 'POST':
         if request.form.get('modID', 0) and request.form.get('typeID', ''):
-            result = logic.process_form(request.form)
-            if result['status']:
-                return redirect(url_for('question', question_id=result['question_id']))
-    return internal_error(500)
+            try:
+                result = logic.process_form(request.form)
+            except OperationalError:
+                message = 'An error occured when processing the form data.'
+            finally:
+                if result['status']:
+                    template = redirect(url_for('question', question_id=result['question_id'], message=message))
+    return template
 
 
 @app.route('/question/<int:question_id>', methods=['GET', 'POST'])
@@ -147,24 +158,44 @@ def question(question_id):
 def vote(direction, question_id=None, answer_id=None):
     user_id = request.args.get('uid', -1)
     if question_id:
-        logic.process_votes(question_id, user_id, questions=True, direction=direction)
+        try:
+            logic.process_votes(question_id, user_id, questions=True, direction=direction)
+        except OperationalError:
+            template = redirect(url_for('internal_error', error=500))
+        else:
+            template = redirect(url_for('question', question_id=question_id))
     elif answer_id:
-        logic.process_votes(answer_id, user_id, questions=False, direction=direction)
-        question_id = logic.get_question_by_answer_id(answer_id)
-    return redirect(url_for('question', question_id=question_id))
+        try:
+            logic.process_votes(answer_id, user_id, questions=False, direction=direction)
+            question_id = logic.get_question_by_answer_id(answer_id)
+        except OperationalError:
+            template = redirect(url_for('internal_error', error=500))
+        else:
+            template = redirect(url_for('question', question_id=question_id))
+    return template
 
 
 @app.route('/user/list')
 def list_all_users():
-    users = logic.list_users()
-    return render_template('users.html', users=users)
+    try:
+        users = logic.list_users()
+    except InternalError:
+        template = redirect(url_for('internal_error', error=500))
+    else:
+        template = render_template('users.html', users=users)
+    return template
 
 
 @app.route('/user/<user_id>')
 def display_user_page(user_id=None):
-    user_data = logic.user_data(user_id)
-    user = logic.user_by_id(user_id)
-    return render_template('user.html', user_data=user_data, user=user)
+    try:
+        user_data = logic.user_data(user_id)
+    except InternalError:
+        template = redirect(url_for('internal_error', error=500))
+    else:
+        user = logic.user_by_id(user_id)
+        template = render_template('user.html', user_data=user_data, user=user)
+    return template
 
 
 @app.route('/registration')
