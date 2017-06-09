@@ -16,6 +16,9 @@ DB = SimpleConnectionPool(1,
 
 @contextmanager
 def get_cursor():
+    """
+    Creating the connection with DB. With RealDictCursor the result is a dict.
+    """
     conn = DB.getconn()
     try:
         yield conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
@@ -28,6 +31,12 @@ def get_cursor():
 
 
 def perform_query(sql, data=None):
+    """
+    Run a query with or without user input.
+        @param     sql          string        The query
+        @param     data                       Any given user data
+        @return    records      dict
+    """
     records = None
     if sql:
         with get_cursor() as cursor:
@@ -37,6 +46,12 @@ def perform_query(sql, data=None):
 
 
 def perform_proc(proc_name, data=[]):
+    """
+    Handles store proc requests.
+        @param     proc_name        string        The name of the proc
+        @param     data             list          Proc parameters
+        @return    result           dict
+    """
     result = None
     if proc_name:
         with get_cursor() as cursor:
