@@ -18,15 +18,14 @@ def index():
         five = False
         link = logic.generate_links(logic.url_helper(request.url))
         questions = logic.get_questions(logic.url_helper(request.url))
+
+    template = render_template('index.html', questions=questions, five=five, link=link)
+
     if request.method == "POST":
-        user_name = request.form['register']
-        new_user = logic.new_user(user_name)
-        if new_user is None:
-            error = 'Choose another username please.'
-    if error:
-        template = registration(error)
-    else:
-        template = render_template('index.html', questions=questions, five=five, link=link)
+        if request.form.get('register', ''):
+            if logic.new_user(request.form['register']) is None:
+                error = 'This username already exists, please choose another one!'
+                template = registration(error)
     return template
 
 
@@ -98,6 +97,28 @@ def show_comment_form(comment_id=None, answer_id=None, question_id=None):
                            question_id=question_id, answer_id=answer_id, users=users)
 
 
+@app.route("/answer/<int:answer_id>/delete")
+@app.route("/question/<int:question_id>/delete")
+@app.route("/comments/<int:comment_id>/delete")
+def delete(comment_id=None, answer_id=None, question_id=None):
+    if comment_id:
+        id = comment_id
+        mode = 'comment'
+        question_id = logic.select_edit_data(id, mode)[0]['question_id']
+        goto = redirect(url_for('question', question_id=question_id))
+    elif answer_id:
+        id = answer_id
+        mode = 'answer'
+        question_id = logic.get_question_by_answer_id(answer_id)
+        goto = redirect(url_for('question', question_id=question_id))
+    else:
+        id = question_id
+        mode = 'question'
+        goto = redirect(url_for('index'))
+    logic.process_delete(id, mode)
+    return goto
+
+
 @app.route('/add-edit', methods=['POST'])
 def handle_form():
     if request.method == 'POST':
@@ -110,18 +131,27 @@ def handle_form():
 
 @app.route('/question/<int:question_id>', methods=['GET', 'POST'])
 def question(question_id):
-    '''
-    try:
+    if request.method == 'GET':
         logic.update_view_number(question_id)
-    except IndexError:
-        pass
-    '''
+
     if request.method == 'POST':
-        answer_id = request.form['answer_id']
-        logic.accepted_answer(answer_id)
+        if request.form.get('answer_id', '') and request.form.get('user_id', ''):
+            logic.accepted_answer(request.form['answer_id'], request.form['user_id'])
     users = logic.list_users()
     return render_template("question.html", data=logic.get_one_question(question_id, answers=True),
                            question_id=question_id, users=users)
+
+
+@app.route("/answer/<answer_id>/vote-<direction>")
+@app.route("/question/<question_id>/vote-<direction>")
+def vote(direction, question_id=None, answer_id=None):
+    user_id = request.args.get('uid', -1)
+    if question_id:
+        logic.process_votes(question_id, user_id, questions=True, direction=direction)
+    elif answer_id:
+        logic.process_votes(answer_id, user_id, questions=False, direction=direction)
+        question_id = logic.get_question_by_answer_id(answer_id)
+    return redirect(url_for('question', question_id=question_id))
 
 
 @app.route('/user/list')
@@ -137,6 +167,11 @@ def display_user_page(user_id=None):
     return render_template('user.html', user_data=user_data, user=user)
 
 
+@app.route('/registration')
+def registration(error=None):
+    return render_template("reg.html", error=error)
+
+
 @app.errorhandler(404)
 def page_not_found(error):
     return 'Oops, page not found!', 404
@@ -145,11 +180,6 @@ def page_not_found(error):
 @app.errorhandler(500)
 def internal_error(error):
     return 'Internal server error!', 500
-
-
-@app.route('/registration', methods=['GET', 'POST'])
-def registration(error=None):
-    return render_template("reg.html", error=error)
 
 
 if __name__ == '__main__':

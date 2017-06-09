@@ -3,14 +3,15 @@
 <div>
     <h1>AskMate</h1>
     <p>AskMate is a crowdsourced Q&#38;A site where peaople can easily ask and answer to help each other.</p>
-    <div><a href="/user/list">Click here to see Users and their Reputation!</a></div>
-    <a href="/new-question">Ask new Question!</a>
-    <br /> {% if five %}
-    <span><a href="/list">Click here to see more questions</a></span>
-    <br /> {% endif %}
-    <a href="/registration">Click to register</a>
+    <div><a href="/registration">Register new user</a></div>
+    <div><a href="/user/list">Users</a></div>
     <h2>Questions</h2>
+    <div><a href="/new-question">Ask new Question</a></div>
     {% if questions %}
+    {% if five %}
+    <div><a href="/list">More questions</a></div>
+    {% endif %}
+    <br />
     <div>
         <form action="{{ url_for('search_questions') }}">
             <input type="text" name="q" autofocus />

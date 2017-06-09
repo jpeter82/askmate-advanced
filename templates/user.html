@@ -14,13 +14,13 @@
                 Date
             </td>
         </tr>
-        {% for data in user_data["q"] %}
+        {% for data in user_data["questions"] %}
         <tr>
             <td>
                 <a href="/question/{{data.id}}">{{data.title}}</a>
             </td>
             <td>
-                {{data.question_date}}
+                {{data.submission_time}}
             </td>
         </tr>
         {% endfor %}
@@ -46,16 +46,16 @@
                 Accepted
             </td>
         </tr>
-        {% for data in user_data["a_c"] %}
+        {% for data in user_data["answers"] %}
         <tr>
             <td>
                 <a href="/question/{{data.id}}">{{data.title}}</a>
             </td>
             <td>
-                {{data.answer_message}}
+                {{data.message}}
             </td>
             <td>
-                {{data.answer_date}}
+                {{data.submission_time}}
             </td>
             <td>
                 {{data.accepted}}
@@ -84,7 +84,7 @@
                 Comment date
             </td>
         </tr>
-        {% for data in user_data["a_c"] %}
+        {% for data in user_data["comments"] %}
         <tr>
             <td>
                 <a href="/question/{{data.id}}">{{data.title}}</a>
@@ -96,7 +96,7 @@
                 {{data.comment_message}}
             </td>
             <td>
-                {{data.comment_date}}
+                {{data.submission_time}}
             </td>
         </tr>
         {% endfor %}
@@ -108,7 +108,7 @@
 
     {% endif %}
     <div>
-        <a href="/">Back to Home!</a>
+        <a href="/">Back to Home</a>
     </div>
 </div>
 {%- endblock content %}

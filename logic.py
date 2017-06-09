@@ -139,7 +139,7 @@ def list_users():
     List all the registered users with all their attributes except their id.
         @return
     '''
-    users_data = db.perform_query("""SELECT user_name, reputation, reg_time, id FROM users;""")
+    users_data = db.perform_query("""SELECT id, user_name, reputation, reg_time FROM users;""")
     return users_data
 
 
@@ -148,36 +148,40 @@ def user_data(user_id):
     List all the data added by a user (comments, answers, questions) by their id.
         @return
     '''
-    sql = """SELECT
-                    q.id,
-                    us.user_name,
-                    q.title,
-                    to_char(q.submission_time, 'YYYY-MM-DD HH24:MI') AS question_date
-                    FROM question q
-                    LEFT OUTER JOIN comment c ON q.id = c.question_id
-                    LEFT OUTER JOIN users u ON q.user_id = u.id
-                    LEFT OUTER JOIN users us ON c.user_id = us.id
-                    WHERE us.id = %(userid)s OR u.id =%(userid)s"""
-    sql2 = """SELECT
-                    q.id,
-                    a.question_id,
-                    q.title,
-                    a.message AS answer_message,
-                    to_char(a.submission_time, 'YYYY-MM-DD HH24:MI') AS answer_date,
-                    c.message AS comment_message,
-                    to_char(c.submission_time, 'YYYY-MM-DD HH24:MI') AS comment_date,
-                    CASE WHEN a.accepted_by IS NULL THEN 0 ELSE 1 END AS accepted
-                    FROM answer a
-                    LEFT OUTER JOIN question q ON q.id = a.question_id
-                    LEFT OUTER JOIN comment c ON a.id = c.answer_id
-                    LEFT OUTER JOIN users u ON a.answered_by = u.id
-                    LEFT OUTER JOIN users us ON c.user_id = us.id
-                    WHERE us.id = %(userid)s OR u.id =%(userid)s"""
-    data = {'userid': user_id}
-    user_data_q = db.perform_query(sql, data)
-    user_data_a_c = db.perform_query(sql2, data)
-    user_data = {"q": user_data_q, "a_c": user_data_a_c}
-    return user_data
+    sql = """SELECT id,
+                    title,
+                    submission_time
+             FROM question
+             WHERE user_id = %s
+             ORDER BY id DESC;"""
+
+    sql2 = """SELECT q.id,
+                     q.title,
+                     a.message,
+                     a.submission_time,
+                     a.answered_by,
+                     CASE WHEN a.accepted_by IS NULL THEN 0 ELSE 1 END AS accepted
+              FROM answer a
+              INNER JOIN question q ON a.question_id = q.id
+              WHERE a.answered_by = %s
+              ORDER BY a.id DESC;"""
+
+    sql3 = """SELECT q.id,
+                     q.title,
+                     a.message as answer_message,
+                     c.message as comment_message,
+                     c.submission_time
+              FROM comment c
+              LEFT OUTER JOIN answer a ON a.id = c.answer_id
+              LEFT OUTER JOIN question q ON q.id = c.question_id
+              WHERE c.user_id = %s
+              ORDER BY c.id DESC;"""
+    data = (user_id,)
+    user_question = db.perform_query(sql, data)
+    user_answer = db.perform_query(sql2, data)
+    user_comment = db.perform_query(sql3, data)
+    result = {"questions": user_question, 'answers': user_answer, 'comments': user_comment}
+    return result
 
 
 def user_by_id(id):
@@ -229,7 +233,7 @@ def get_one_question(question_id, answers=False):
                          to_char(a.submission_time, 'YYYY-MM-DD HH24:MI') AS answer_date,
                          a.vote_number,
                          a.answered_by,
-                         a.accepted_by,
+                         COALESCE(a.accepted_by, 0) AS accepted_by,
                          u.user_name AS answer_user_name,
                          c.message AS comment_body,
                          to_char(c.submission_time, 'YYYY-MM-DD HH24:MI') AS comment_date,
@@ -242,7 +246,7 @@ def get_one_question(question_id, answers=False):
                   LEFT OUTER JOIN users u ON a.answered_by = u.id
                   LEFT OUTER JOIN users us ON c.user_id = us.id
                   WHERE a.question_id = %s
-                  ORDER BY a.vote_number DESC, a.submission_time DESC, c.submission_time DESC;"""
+                  ORDER BY accepted_by DESC, a.vote_number DESC, a.submission_time DESC, c.submission_time DESC;"""
         answer = db.perform_query(sql2, data)
 
         result = {'question': question, 'answer': answer}
@@ -278,21 +282,21 @@ def process_form(form_data):
                 # question
                 sql = """INSERT INTO question (title, message, user_id)
                          VALUES (%s, %s, %s) RETURNING id AS question_id;"""
-            elif typeID == 2:
                 data = (form_data['title'], form_data['message'], get_user_by_name(form_data['user']))
+            elif typeID == 2:
                 # answer
                 sql = """INSERT INTO answer (question_id, message, answered_by)
                          VALUES (%s, %s, %s) RETURNING question_id;"""
-            elif typeID == 3 and form_data.get('answer_id', -10) == -10:
                 data = (form_data['question_id'], form_data['message'], get_user_by_name(form_data['user']))
+            elif typeID == 3 and form_data.get('answer_id', -10) == -10:
                 # comment to question
                 sql = """INSERT INTO comment (question_id, message, user_id)
                          VALUES (%s, %s, %s) RETURNING question_id;"""
                 data = (form_data['question_id'], form_data['message'], get_user_by_name(form_data['user']))
             elif typeID == 3 and form_data['answer_id']:
                 # comment to answer
-                data = (form_data['answer_id'], form_data['message'], get_user_by_name(form_data['user']))
                 sql = """INSERT INTO comment (answer_id, message, user_id) VALUES (%s, %s, %s) RETURNING id;"""
+                data = (form_data['answer_id'], form_data['message'], get_user_by_name(form_data['user']))
                 question_id = get_question_by_answer_id(form_data['answer_id'])
             else:
                 raise ValueError
@@ -311,7 +315,7 @@ def process_form(form_data):
                 sql = """UPDATE comment SET message = %s WHERE id = %s RETURNING id;"""
                 data = (form_data['message'], modID)
                 question_id = form_data['question_id'] if form_data.get(
-                                    'question_id', '') else get_question_by_answer_id(form_data['answer_id'])
+                    'question_id', '') else get_question_by_answer_id(form_data['answer_id'])
             else:
                 raise ValueError
 
@@ -376,13 +380,50 @@ def select_edit_data(id, mode):
     result = db.perform_query(sql, data)
     return result
 
-  
-def accepted_answer(answer_id):
+
+def accepted_answer(answer_id, user_id):
     """
     Updates in the answer table the accepted_by field with the user's id.
-    @answer_id 
+    @answer_id
     """
     sql = """UPDATE answer SET accepted_by = %s WHERE id = %s RETURNING id;"""
-    data = (answer_id, answer_id)
+    data = (user_id, answer_id)
     result = db.perform_query(sql, data)
+    reputation = db.perform_proc('update_reputation', [user_id, 'accepted_answer'])
     return result
+
+
+def process_votes(id, user_id, questions=True, direction='up'):
+    status = False
+    if id:
+        if direction not in ('up', 'down'):
+            raise ValueError
+
+        if questions is True:
+            if direction == 'up':
+                sql = """UPDATE question SET vote_number = vote_number + 1 WHERE id = %s RETURNING id;"""
+                reputation = db.perform_proc('update_reputation', [user_id, 'upvoted_question'])
+            else:
+                sql = """UPDATE question SET vote_number = vote_number - 1 WHERE id = %s RETURNING id;"""
+                reputation = db.perform_proc('update_reputation', [user_id, 'downvoted_question'])
+        elif questions is False:
+            if direction == 'up':
+                sql = """UPDATE answer SET vote_number = vote_number + 1 WHERE id = %s RETURNING id;"""
+                reputation = db.perform_proc('update_reputation', [user_id, 'upvoted_answer'])
+            else:
+                sql = """UPDATE answer SET vote_number = vote_number - 1 WHERE id = %s RETURNING id;"""
+                reputation = db.perform_proc('update_reputation', [user_id, 'downvoted_answer'])
+        else:
+            raise ValueError
+        data = (id,)
+        status = True if db.perform_query(sql, data) else False
+    return status
+
+
+def update_view_number(question_id):
+    status = False
+    if question_id:
+        sql = """UPDATE question SET view_number = view_number + 1 WHERE id = %s RETURNING id;"""
+        data = (question_id,)
+        status = True if db.perform_query(sql, data) else False
+    return status

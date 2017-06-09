@@ -1,34 +1,40 @@
-{% extends "base.html" %} {% block content %}
+{% extends "base.html" %}
+{% block title %} - Users {% endblock %}
+{% block content %}
 <div id="body-users" class="container">
     <h1>Users</h1>
     <div>
-        <a href="/">Back to Home!</a>
+        <a href="{{ url_for('index') }}">Home</a>
     </div>
     <table class="table-form">
-        <tr>
-            <td>
-                User name
-            </td>
-            <td>
-                Reputation
-            </td>
-            <td>
-                Registration date
-            </td>
-        </tr>
-        {% for user in users %}
-        <tr>
-            <td>
-                <a href="/user/{{ user.id }}">{{user.user_name}}</a>
-            </td>
-            <td>
-                {{user.reputation}}
-            </td>
-            <td>
-                {{user.reg_time}}
-            </td>
-        </tr>
-        {% endfor %}
+        <thead>
+            <tr>
+                <td>
+                    <span>User name</span>
+                </td>
+                <td>
+                    <span>Reputation</span>
+                </td>
+                <td>
+                    <span>Registration date</span>
+                </td>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>
+                    <a href="/user/{{ user.id }}">{{user.user_name}}</a>
+                </td>
+                <td>
+                    {{user.reputation}}
+                </td>
+                <td>
+                    {{user.reg_time}}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
     </table>
 </div>
 {%- endblock content %}
