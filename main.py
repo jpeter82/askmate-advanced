@@ -131,12 +131,9 @@ def handle_form():
 
 @app.route('/question/<int:question_id>', methods=['GET', 'POST'])
 def question(question_id):
-    '''
-    try:
+    if request.method == 'GET':
         logic.update_view_number(question_id)
-    except IndexError:
-        pass
-    '''
+
     if request.method == 'POST':
         if request.form.get('answer_id', '') and request.form.get('user_id', ''):
             logic.accepted_answer(request.form['answer_id'], request.form['user_id'])

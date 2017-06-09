@@ -414,3 +414,12 @@ def process_votes(id, user_id, questions=True, direction='up'):
         data = (id,)
         status = True if db.perform_query(sql, data) else False
     return status
+
+
+def update_view_number(question_id):
+    status = False
+    if question_id:
+        sql = """UPDATE question SET view_number = view_number + 1 WHERE id = %s RETURNING id;"""
+        data = (question_id,)
+        status = True if db.perform_query(sql, data) else False
+    return status
