@@ -220,6 +220,10 @@ span.vote-num {
   -webkit-animation-iteration-count: 1;
   animation-iteration-count: 1;
 }
+
+.btn-success {
+    margin-bottom: 10px;
+}
 /*-----------------------------------*\
 	1 - MEDIA QUERIES
 \*-----------------------------------*/

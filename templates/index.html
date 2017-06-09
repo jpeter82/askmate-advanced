@@ -1,30 +1,31 @@
 {% extends "base.html" %} {% block title %} - {% if question %} Edit {% else -%} Add new {% endif %} Record{% endblock %}
 {% block content %}
 <div>
-    <h1>AskMate</h1>
-    <p>AskMate is a crowdsourced Q&#38;A site where peaople can easily ask and answer to help each other.</p>
-    <div><a href="/registration">Register new user</a></div>
-    <div><a href="/user/list">Users</a></div>
-    <h2>Questions</h2>
-    <div><a href="/new-question">Ask new Question</a></div>
-    {% if questions %}
-    {% if five %}
-    <div><a href="/list">More questions</a></div>
-    {% endif %}
+    <h1 class="askmate">AskMate</h1>
+    <p class="askmate-desc">AskMate is a crowdsourced Q&#38;A site where peaople can easily ask and answer to help each other.</p>
+    <div class="container">
+        <div><a href="/registration" class="btn btn-success">Register new user</a></div>
+        <div><a href="/user/list" class="btn btn-success">Users</a></div>
+        <h2 class="title-text-question">Questions</h2>
+        <div><a href="/new-question" class="btn btn-success">Ask new Question</a></div>
+        {% if questions %} {% if five %}
+        <div><a href="/list" class="btn btn-success">More questions</a></div>
+        {% endif %}
+    </div>
     <br />
-    <div>
+    <div class="input-group search">
         <form action="{{ url_for('search_questions') }}">
-            <input type="text" name="q" autofocus />
-            <input type="submit" value="Search" />
+            <input type="text" name="q" autofocus class="form-control" placeholder="Search for..." />
+            <input type="submit" value="Search" class="btn btn-success" />
         </form>
     </div>
-    <div>
+    <div class="container">
         {% if not five %}
         <br />
-        <span><a href="/list">Reset column order</a></span> {% endif %}
+        <span><a href="/list" class="btn btn-success">Reset column order</a></span> {% endif %}
     </div>
-    <div>
-        <table id="questions-table">
+    <div class="container">
+        <table id="questions-table" class="table table-bordred table-striped table-responsive">
             <thead>
                 <th>{% if five %} Submission Time {% else %} <a href="/list?{{ link.time }}">Submisson Time</a> {% endif %}</th>
                 <th>{% if five %} View Number {% else %} <a href="/list?{{ link.view }}">View Number</a> {% endif %}</th>
@@ -40,13 +41,13 @@
                     <td>{{ question.submission_time }}</td>
                     <td>{{ question.view_number }}</td>
                     <td>{{ question.vote_number }}</td>
-                    <td><a href="/question/{{ question.id }}">{{ question.title }}</a></td>
-                    <td><a href="/question/{{ question.id }}">{{ question.message }}</a></td>
+                    <td><a href="/question/{{ question.id }}" class="open-question">{{ question.title }}</a></td>
+                    <td><a href="/question/{{ question.id }}" class="open-question">{{ question.message }}</a></td>
                     <td>
-                        <a href="/question/{{ question.id }}/edit">Edit</a>
+                        <a href="/question/{{ question.id }}/edit"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></a>
                     </td>
                     <td>
-                        <a href="/question/{{ question.id }}/delete">Delete</a>
+                        <a href="/question/{{ question.id }}/delete"><span class="glyphicon glyphicon-trash" aria-hidden="true"></a>
                     </td>
                 </tr>
                 {% endfor %}
@@ -54,7 +55,7 @@
         </table>
     </div>
     {% else %}
-    <div>
+    <div class="no-questions">
         <h2>No questions to display</h2>
     </div>
     {% endif %}
