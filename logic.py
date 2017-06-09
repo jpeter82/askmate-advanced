@@ -128,8 +128,8 @@ def new_user(username):
     """
     Insert the new user into the users table
         @param  username    string      The chosen name by the user
-        @return             int or None If the insert is done, returns with the new user's id. 
-                                        If the username is already taken, returns None 
+        @return             int or None If the insert is done, returns with the new user's id.
+                                        If the username is already taken, returns None
     """
     sql = """INSERT INTO users (user_name) VALUES (%s) RETURNING id;"""
     data = (username,)
