@@ -282,12 +282,12 @@ def process_delete(id, table):
     return status
 
 
-def accepted_answer(answer_id):
+def accepted_answer(user_id, answer_id):
     """
     Updates in the answer table the accepted_by field with the user's id.
     @answer_id 
     """
     sql = """UPDATE answer SET accepted_by = %s WHERE id = %s RETURNING id;"""
-    data = (answer_id, answer_id)
+    data = (user_id, answer_id)
     result = db.perform_query(sql, data)
     return result
