@@ -127,7 +127,9 @@ def url_helper(url):
 def new_user(username):
     """
     Insert the new user into the users table
-        @username is the chosen name by the user    string
+        @param  username    string      The chosen name by the user
+        @return             int or None If the insert is done, returns with the new user's id. 
+                                        If the username is already taken, returns None 
     """
     sql = """INSERT INTO users (user_name) VALUES (%s) RETURNING id;"""
     data = (username,)
@@ -137,7 +139,6 @@ def new_user(username):
 def list_users():
     '''
     List all the registered users with all their attributes except their id.
-        @return
     '''
     users_data = db.perform_query("""SELECT id, user_name, reputation, reg_time FROM users;""")
     return users_data
@@ -146,7 +147,8 @@ def list_users():
 def user_data(user_id):
     '''
     List all the data added by a user (comments, answers, questions) by their id.
-        @return
+        @param      user_id     int     ID of the user
+        @return                 dict    keys: question, answer, comments. values: messages
     '''
     sql = """SELECT id,
                     title,
@@ -185,6 +187,11 @@ def user_data(user_id):
 
 
 def user_by_id(id):
+    '''
+    Get the user by it's ID.
+        @param      id     int     ID of the user
+        @return     string         The username with the chosen id.
+    '''
     sql = """SELECT user_name FROM users WHERE id = %s"""
     data = (id,)
     user = db.perform_query(sql, data)
@@ -192,6 +199,11 @@ def user_by_id(id):
 
 
 def get_user_by_name(user_name):
+    '''
+    Get the user by it's name.
+        @param      user_name     sting     Name of the user
+        @return     id            int       The chosen user's id
+    '''
     user_id = db.perform_query("""SELECT id FROM users WHERE user_name = %s LIMIT 1;""", (user_name,))
     return user_id[0]['id']
 
@@ -268,6 +280,11 @@ def get_question_by_answer_id(answer_id):
 
 
 def process_form(form_data):
+    """
+    Handles Insert/Update Q/A/C \n
+        @param      form_data      User input
+        @return     dict            keys: status, question_id values:true/false, question's id
+    """
     question_id = False
     try:
         modID = int(form_data['modID'])
@@ -384,7 +401,9 @@ def select_edit_data(id, mode):
 def accepted_answer(answer_id, user_id):
     """
     Updates in the answer table the accepted_by field with the user's id.
-    @answer_id
+        @answer_id  int     answer's id
+        @user_id    int     user's id
+        @return     int     the updated answer's id
     """
     sql = """UPDATE answer SET accepted_by = %s WHERE id = %s RETURNING id;"""
     data = (user_id, answer_id)
@@ -394,6 +413,13 @@ def accepted_answer(answer_id, user_id):
 
 
 def process_votes(id, user_id, questions=True, direction='up'):
+    """
+    Handles the voting process.
+        @param id           int     id                  Id of the chosen q/a for upvote
+        @param user_id      int     user's id           Who owns the q/a
+        @param questions    int     true/false          Question or answer
+        @param direction    string  up/somethig else    Is that an upvote or not
+    """
     status = False
     if id:
         if direction not in ('up', 'down'):
@@ -421,6 +447,11 @@ def process_votes(id, user_id, questions=True, direction='up'):
 
 
 def update_view_number(question_id):
+    """
+    Set the view numbers.
+        @param question_id      int         Question's id
+        @return                 bool        True, if the update is done else False
+    """
     status = False
     if question_id:
         sql = """UPDATE question SET view_number = view_number + 1 WHERE id = %s RETURNING id;"""
