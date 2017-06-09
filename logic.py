@@ -139,7 +139,7 @@ def list_users():
     List all the registered users with all their attributes except their id.
         @return
     '''
-    users_data = db.perform_query("""SELECT user_name, reputation, reg_time FROM users;""")
+    users_data = db.perform_query("""SELECT id, user_name, reputation, reg_time FROM users;""")
     return users_data
 
 
@@ -229,6 +229,7 @@ def get_one_question(question_id, answers=False):
                          to_char(a.submission_time, 'YYYY-MM-DD HH24:MI') AS answer_date,
                          a.vote_number,
                          a.answered_by,
+                         COALESCE(a.accepted_by, 0) AS accepted_by,
                          u.user_name AS answer_user_name,
                          c.message AS comment_body,
                          to_char(c.submission_time, 'YYYY-MM-DD HH24:MI') AS comment_date,
@@ -241,7 +242,7 @@ def get_one_question(question_id, answers=False):
                   LEFT OUTER JOIN users u ON a.answered_by = u.id
                   LEFT OUTER JOIN users us ON c.user_id = us.id
                   WHERE a.question_id = %s
-                  ORDER BY a.vote_number DESC, a.submission_time DESC, c.submission_time DESC;"""
+                  ORDER BY accepted_by DESC, a.vote_number DESC, a.submission_time DESC, c.submission_time DESC;"""
         answer = db.perform_query(sql2, data)
 
         result = {'question': question, 'answer': answer}
@@ -376,12 +377,12 @@ def select_edit_data(id, mode):
     return result
 
 
-def accepted_answer(answer_id):
+def accepted_answer(answer_id, user_id):
     """
     Updates in the answer table the accepted_by field with the user's id.
     @answer_id
     """
     sql = """UPDATE answer SET accepted_by = %s WHERE id = %s RETURNING id;"""
-    data = (answer_id, answer_id)
+    data = (user_id, answer_id)
     result = db.perform_query(sql, data)
     return result

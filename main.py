@@ -138,8 +138,8 @@ def question(question_id):
         pass
     '''
     if request.method == 'POST':
-        answer_id = request.form['answer_id']
-        logic.accepted_answer(answer_id)
+        if request.form.get('answer_id', '') and request.form.get('user_id', ''):
+            logic.accepted_answer(request.form['answer_id'], request.form['user_id'])
     users = logic.list_users()
     return render_template("question.html", data=logic.get_one_question(question_id, answers=True),
                            question_id=question_id, users=users)
