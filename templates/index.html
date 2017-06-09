@@ -3,13 +3,15 @@
 <div>
     <h1 class="askmate">AskMate</h1>
     <p class="askmate-desc">AskMate is a crowdsourced Q&#38;A site where peaople can easily ask and answer to help each other.</p>
-    <div><a href="/registration" class="btn btn-success">Register new user</a></div>
-    <div><a href="/user/list" class="btn btn-success">Users</a></div>
-    <h2 class="title-text-question">Questions</h2>
-    <div><a href="/new-question" class="btn btn-success">Ask new Question</a></div>
-    {% if questions %} {% if five %}
-    <div><a href="/list" class="btn btn-success">More questions</a></div>
-    {% endif %}
+    <div class="container">
+        <div><a href="/registration" class="btn btn-success">Register new user</a></div>
+        <div><a href="/user/list" class="btn btn-success">Users</a></div>
+        <h2 class="title-text-question">Questions</h2>
+        <div><a href="/new-question" class="btn btn-success">Ask new Question</a></div>
+        {% if questions %} {% if five %}
+        <div><a href="/list" class="btn btn-success">More questions</a></div>
+        {% endif %}
+    </div>
     <br />
     <div class="input-group search">
         <form action="{{ url_for('search_questions') }}">
@@ -17,12 +19,12 @@
             <input type="submit" value="Search" class="btn btn-success" />
         </form>
     </div>
-    <div>
+    <div class="container">
         {% if not five %}
         <br />
         <span><a href="/list" class="btn btn-success">Reset column order</a></span> {% endif %}
     </div>
-    <div>
+    <div class="container">
         <table id="questions-table" class="table table-bordred table-striped table-responsive">
             <thead>
                 <th>{% if five %} Submission Time {% else %} <a href="/list?{{ link.time }}">Submisson Time</a> {% endif %}</th>

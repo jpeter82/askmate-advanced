@@ -1,37 +1,9 @@
-{% extends "base.html" %}
-
-{% block title %}
-{% if modID == -1 %}
- - Add new 
-{% else -%}
- - Edit 
-{% endif %}
-
-{% if typeID == 1 %}
-Question
-{% elif typeID == 2 -%}
-Answer
-{% elif typeID == 3 %}
-Comment
-{% endif %}
-{% endblock %}
-
-{% block content %}
-<div>
+{% extends "base.html" %} {% block title %} {% if modID == -1 %} - Add new {% else -%} - Edit {% endif %} {% if typeID ==
+1 %} Question {% elif typeID == 2 -%} Answer {% elif typeID == 3 %} Comment {% endif %} {% endblock %} {% block content %}
+<div class="container">
     <h1>
-        {% if modID == -1 %} 
-        Add new 
-        {% else %}
-        Edit 
-        {% endif %}
-        
-        {% if typeID == 1 %}
-        Question
-        {% elif typeID == 2 %}
-        Answer
-        {% elif typeID == 3 %} 
-        Comment 
-        {% endif %}
+        {% if modID == -1 %} Add new {% else %} Edit {% endif %} {% if typeID == 1 %} Question {% elif typeID == 2 %} Answer {% elif
+        typeID == 3 %} Comment {% endif %}
     </h1 class="title-text-question">
     <form action="/add-edit" method="POST" enctype='multipart/form-data'>
         <div>
@@ -44,16 +16,14 @@ Comment
         <div>
             <input type="hidden" name="question_id" value="{{ question_id }}" />
         </div>
-        {% endif %}
-        {% if answer_id %}
+        {% endif %} {% if answer_id %}
         <div>
             <input type="hidden" name="answer_id" value="{{ answer_id }}" />
         </div>
-        {% endif %}
-        {% if typeID == 1 %}
+        {% endif %} {% if typeID == 1 %}
         <div>
             <label for="title">Title:</label></br>
-            <input class="form-control" type="text" name="title" {% if modID != -1 %}value="{{ data.title }}"{% endif %} required />
+            <input class="form-control" type="text" name="title" {% if modID !=- 1 %}value="{{ data.title }}" {% endif %} required />
         </div>
         {% endif %}
         <div>
@@ -70,8 +40,7 @@ Comment
                 {% endfor %}
             </select>
         </div>
-        <br />
-        {% endif %}
+        <br /> {% endif %}
         <button class="btn btn-success" type="submit">Submit</button>
     </form>
 </div>
