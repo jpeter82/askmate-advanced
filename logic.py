@@ -148,36 +148,40 @@ def user_data(user_id):
     List all the data added by a user (comments, answers, questions) by their id.
         @return
     '''
-    sql = """SELECT
-                    q.id,
-                    us.user_name,
-                    q.title,
-                    to_char(q.submission_time, 'YYYY-MM-DD HH24:MI') AS question_date
-                    FROM question q
-                    LEFT OUTER JOIN comment c ON q.id = c.question_id
-                    LEFT OUTER JOIN users u ON q.user_id = u.id
-                    LEFT OUTER JOIN users us ON c.user_id = us.id
-                    WHERE us.id = %(userid)s OR u.id =%(userid)s"""
-    sql2 = """SELECT
-                    q.id,
-                    a.question_id,
-                    q.title,
-                    a.message AS answer_message,
-                    to_char(a.submission_time, 'YYYY-MM-DD HH24:MI') AS answer_date,
-                    c.message AS comment_message,
-                    to_char(c.submission_time, 'YYYY-MM-DD HH24:MI') AS comment_date,
-                    CASE WHEN a.accepted_by IS NULL THEN 0 ELSE 1 END AS accepted
-                    FROM answer a
-                    LEFT OUTER JOIN question q ON q.id = a.question_id
-                    LEFT OUTER JOIN comment c ON a.id = c.answer_id
-                    LEFT OUTER JOIN users u ON a.answered_by = u.id
-                    LEFT OUTER JOIN users us ON c.user_id = us.id
-                    WHERE us.id = %(userid)s OR u.id =%(userid)s"""
-    data = {'userid': user_id}
-    user_data_q = db.perform_query(sql, data)
-    user_data_a_c = db.perform_query(sql2, data)
-    user_data = {"q": user_data_q, "a_c": user_data_a_c}
-    return user_data
+    sql = """SELECT id,
+                    title,
+                    submission_time
+             FROM question
+             WHERE user_id = %s
+             ORDER BY id DESC;"""
+
+    sql2 = """SELECT q.id,
+                     q.title,
+                     a.message,
+                     a.submission_time,
+                     a.answered_by,
+                     CASE WHEN a.accepted_by IS NULL THEN 0 ELSE 1 END AS accepted
+              FROM answer a
+              INNER JOIN question q ON a.question_id = q.id
+              WHERE a.answered_by = %s
+              ORDER BY a.id DESC;"""
+
+    sql3 = """SELECT q.id,
+                     q.title,
+                     a.message,
+                     c.message,
+                     c.submission_time
+              FROM comment c
+              LEFT OUTER JOIN answer a ON a.id = c.answer_id
+              LEFT OUTER JOIN question q ON q.id = c.question_id
+              WHERE c.user_id = %s
+              ORDER BY c.id DESC;"""
+    data = (user_id,)
+    user_question = db.perform_query(sql, data)
+    user_answer = db.perform_query(sql2, data)
+    user_comment = db.perform_query(sql3, data)
+    result = {"questions": user_question, 'answers': user_answer, 'comments': user_comment}
+    return result
 
 
 def user_by_id(id):
