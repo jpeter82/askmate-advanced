@@ -168,8 +168,8 @@ def user_data(user_id):
 
     sql3 = """SELECT q.id,
                      q.title,
-                     a.message,
-                     c.message,
+                     a.message as answer_message,
+                     c.message as comment_message,
                      c.submission_time
               FROM comment c
               LEFT OUTER JOIN answer a ON a.id = c.answer_id
@@ -315,7 +315,7 @@ def process_form(form_data):
                 sql = """UPDATE comment SET message = %s WHERE id = %s RETURNING id;"""
                 data = (form_data['message'], modID)
                 question_id = form_data['question_id'] if form_data.get(
-                                    'question_id', '') else get_question_by_answer_id(form_data['answer_id'])
+                    'question_id', '') else get_question_by_answer_id(form_data['answer_id'])
             else:
                 raise ValueError
 
